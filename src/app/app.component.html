@@ -1,16 +1,16 @@
 <main class="page">
   <section class="programming-area">
     <py-repl class="repl-area">
-      {{ some }}
+      {{ codeStoredInDatabase }}
     </py-repl>
     <py-terminal class="terminal"></py-terminal>
   </section>
   <section class="menu-area">
     <div class="buttons">
-      <button class="execute"(click)="sortInPython(['Candy', 'Donut', 'Apple', 'Banana'])">
+      <button class="execute"(click)="execute()">
         Executar
       </button>
-      <button class="save" (click)="sortInPython(['Candy', 'Donut', 'Apple', 'Banana'])">
+      <button class="save" (click)="save()">
         Guardar
       </button>
     </div>
