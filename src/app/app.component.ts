@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ViewEncapsulation } from "@angular/core";
 
 declare var pyscript: any;
 
@@ -9,6 +9,7 @@ interface ElementWithInnerText extends Element {
   selector: "app-root",
   templateUrl: "./app.component.html",
   styleUrls: ["./app.component.css"],
+  encapsulation: ViewEncapsulation.None
 })
 export class AppComponent {
   codeStoredInDatabase = "for i in range(8):\n\t\tprint(i)";

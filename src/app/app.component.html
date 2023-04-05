@@ -1,18 +1,29 @@
 <main class="page">
   <section class="programming-area">
-    <py-repl class="repl-area">
-      {{ codeStoredInDatabase }}
-    </py-repl>
+    <mat-tab-group
+      [disableRipple]="true"
+      mat-align-tabs="start"
+      animationDuration="250ms"
+    >
+      <mat-tab label="Código">
+        <py-repl class="repl-area">
+          {{ codeStoredInDatabase }}
+        </py-repl>
+      </mat-tab>
+      <mat-tab label="Pseudocódigo"
+        >Um editor de código irá ser colocado aqui para escrevermos o pseudo
+        código
+      </mat-tab>
+      <mat-tab label="Fluxograma"
+        >Uma canvas irá aparecer aqui para compormos o fluxogram
+      </mat-tab>
+    </mat-tab-group>
     <py-terminal class="terminal"></py-terminal>
   </section>
   <section class="menu-area">
     <div class="buttons">
-      <button class="execute"(click)="execute()">
-        Executar
-      </button>
-      <button class="save" (click)="save()">
-        Guardar
-      </button>
+      <button class="execute" (click)="execute()">Executar</button>
+      <button class="save" (click)="save()">Guardar</button>
     </div>
   </section>
   <!-- <py-repl></py-repl> -->
