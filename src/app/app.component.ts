@@ -16,7 +16,7 @@ export class AppComponent {
   execute(): void {
     const repl = document.getElementsByClassName("cm-content");
     const code = (repl[0] as ElementWithInnerText).innerText;
-    pyscript.interpreter.run(code);
+    pyscript.interpreter.run(code.trim());
   }
 
   save(): void {
