@@ -21,6 +21,8 @@ export class AppComponent {
   }
 
   save(): void {
-    throw new Error("Method not implemented");
+    const repl = document.getElementsByClassName("cm-content");
+    const code = (repl[0] as ElementWithInnerText).innerText;
+    this.codeStoredInDatabase = code.trim();
   }
 }
