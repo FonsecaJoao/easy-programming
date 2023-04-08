@@ -42,6 +42,7 @@
   border: none;
   box-shadow: 3px 4px 2px 0px grey;
   text-transform: uppercase;
+  cursor: pointer;
 }
 
 .page > .menu-area > .buttons > .save {
@@ -51,6 +52,7 @@
   border: none;
   box-shadow: 3px 4px 2px 0px grey;
   text-transform: uppercase;
+  cursor: pointer;
 }
 
 ::ng-deep pre {
@@ -84,5 +86,5 @@
 
 .mat-tab-body-wrapper {
   padding: 10px 5px;
-  height: 80vh;
+  height: 61vh;
 }
