@@ -5,7 +5,7 @@ import { AppComponent } from "./app.component";
 
 @NgModule({
   declarations: [AppComponent],
-  imports: [BrowserModule, BrowserAnimationsModule, MatTabsModule],
+  imports: [BrowserModule, MatTabsModule],
   providers: [],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   bootstrap: [AppComponent],
