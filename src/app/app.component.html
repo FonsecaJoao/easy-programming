@@ -1,21 +1,20 @@
 <main class="page">
   <section class="programming-area">
-    <mat-tab-group
-      [disableRipple]="true"
-      mat-align-tabs="start"
-      animationDuration="250ms"
-    >
+    <mat-tab-group>
+      <mat-tab label="Pseudocódigo">
+        <ngx-codemirror
+          [(ngModel)]="pseudocodeStoredInDatabase"
+          [options]="pseudocodeOptions"
+          (ngModelChange)="handleChange($event)"
+        ></ngx-codemirror>
+      </mat-tab>
       <mat-tab label="Código">
         <py-repl class="repl-area">
           {{ codeStoredInDatabase }}
         </py-repl>
       </mat-tab>
-      <mat-tab label="Pseudocódigo"
-        >Um editor de código irá ser colocado aqui para escrevermos o pseudo
-        código
-      </mat-tab>
       <mat-tab label="Fluxograma"
-        >Uma canvas irá aparecer aqui para compormos o fluxogram
+        >Uma canvas irá aparecer aqui para compormos o fluxograma
       </mat-tab>
     </mat-tab-group>
     <py-terminal class="terminal"></py-terminal>
@@ -26,7 +25,6 @@
       <button class="save" (click)="save()">Guardar</button>
     </div>
   </section>
-  <!-- <py-repl></py-repl> -->
   <!-- <canvas
     id="flowchartCanvas"
     width="200"
