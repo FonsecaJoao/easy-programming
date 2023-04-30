@@ -1,7 +1,10 @@
 @import "codemirror/lib/codemirror";
 
+@import '../node_modules/@syncfusion/ej2-angular-diagrams/styles/material.css';
+@import '../node_modules/@syncfusion/ej2-navigations/styles/material.css';
 /* You can add global styles to this file, and also import other style files */
-html,
+
+/*html,
 body {
   margin: 0;
   padding: 0;
@@ -11,4 +14,15 @@ body {
 body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+*/
+.palette-section {
+  width: 15%;
+  height: 100%;
+  float: left;
+}
+.diagram-section {
+  width: 85%;
+  height: 100%;
+  float: right;
 }
