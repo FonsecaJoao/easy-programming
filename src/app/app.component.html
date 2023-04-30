@@ -13,8 +13,29 @@
           {{ codeStoredInDatabase }}
         </py-repl>
       </mat-tab>
-      <mat-tab label="Fluxograma"
-        >Uma canvas irá aparecer aqui para compormos o fluxograma
+      <mat-tab label="Fluxograma">
+        <ng-template matTabContent>
+          <div class="control-section">
+            <div class="palette-section">
+              <ejs-symbolpalette
+                height="500px"
+                [palettes]="symbolPalette"
+                [symbolHeight]="50"
+                [symbolWidth]="50"
+                (paletteExpanding)="paletteExpandingAction($event)"
+                [enableSearch]="true"
+                [symbolPreview]="symbolPreviewSettings"
+              >
+              </ejs-symbolpalette>
+            </div>
+            <div class="diagram-section">
+              <ejs-diagram height="100%"> </ejs-diagram>
+              <ejs-diagram width="100%" height="850px"></ejs-diagram>
+            </div>
+          </div>
+       
+       
+        </ng-template>
       </mat-tab>
     </mat-tab-group>
     <py-terminal class="terminal"></py-terminal>
@@ -25,6 +46,7 @@
       <button class="save" (click)="save()">Guardar</button>
     </div>
   </section>
+
   <!-- <canvas
     id="flowchartCanvas"
     width="200"
