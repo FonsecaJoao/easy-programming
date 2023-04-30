@@ -1,4 +1,5 @@
 import { Component, ViewEncapsulation } from "@angular/core";
+import { pythonToPseudocode } from "src/modules/code-to-pseudocode/python-to-pseudocode";
 
 declare var pyscript: any;
 
@@ -29,9 +30,11 @@ export class AppComponent {
   };
 
   execute(): void {
-    const repl = document.getElementsByClassName("cm-content");
-    const code = (repl[0] as ElementWithInnerText).innerText;
-    pyscript.interpreter.run(code.trim());
+    // const repl = document.getElementsByClassName("cm-content");
+    // const code = (repl[0] as ElementWithInnerText).innerText;
+    // pyscript.interpreter.run(code.trim());
+    const code: string[] = this.retrieveCodeFromHtml();
+    pythonToPseudocode(code);
   }
 
   save(): void {
@@ -43,5 +46,19 @@ export class AppComponent {
   handleChange(event: string) {
     // console.log("this.content", this.content);
     console.log(event);
+  }
+
+  private retrieveCodeFromHtml(): string[] {
+    const repl = document.getElementsByClassName("cm-content");
+    const collection: HTMLCollection = repl[0].children;
+    const code: string[] = [];
+
+    for (const item in collection) {
+      if (collection.hasOwnProperty(item)) {
+        const element = collection[item] as ElementWithInnerText;
+        code.push(element.innerText);
+      }
+    }
+    return code;
   }
 }
