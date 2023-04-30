@@ -6,9 +6,11 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { CodemirrorModule } from "@ctrl/ngx-codemirror";
 import { AppComponent } from "./app.component";
 
+import { DiagramModule, SymbolPaletteModule } from '@syncfusion/ej2-angular-diagrams';
+
 @NgModule({
   declarations: [AppComponent],
-  imports: [BrowserModule, BrowserAnimationsModule, MatTabsModule, FormsModule, CodemirrorModule],
+  imports: [BrowserModule, BrowserAnimationsModule, MatTabsModule, FormsModule, CodemirrorModule, DiagramModule, SymbolPaletteModule],
   providers: [],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   bootstrap: [AppComponent],
