@@ -6,6 +6,7 @@ const KEYWORDS = {
   // CONDITIONAL_OPERATORS
   if: "IF",
   else: "ELSE",
+  ["else:"]: "ELSE",
   elif: "ELSE IF",
   // BOOLEAN_OPERATORS
   True: "TRUE",
@@ -16,11 +17,10 @@ const KEYWORDS = {
   break: "BREAK",
   continue: "CONTINUE",
   pass: "PASS",
+  in: "IN",
   // FUNCTION_OPERATORS
   def: "DEFINE FUNCTION",
   return: "RETURN",
-  // CLASS_OPERATORS
-  class: "DEFINE CLASS",
   // NULL_OPERATORS
   None: "NULL",
   // COMPARISON_OPERATORS
@@ -31,9 +31,9 @@ const KEYWORDS = {
   "<=": "LOWER OR EQUALS THAN",
   ">=": "HIGHER OR EQUALS THAN",
   // ARITHMETIC_OPERATORS
-  "+": "SUM",
-  "-": "SUBTRACTION",
-  "*": "MULTIPLY",
+  "+": "PLUS",
+  "-": "MINUS",
+  "*": "TIMES",
   "/": "DIVIDE",
   "%": "MODULUS",
   "**": "POWER OF",
@@ -48,29 +48,21 @@ const KEYWORDS = {
   input: "INPUT",
 };
 
-export function pythonToPseudocode(code: string[]) {
+export function pythonToPseudocode(code: string[]): string {
   if (code?.length === 0) throw new Error("Can't convert what is empty");
-  console.log(code);
-  for (const line of code) {
-	  const lineIndex = code.indexOf(line);
-	  
-	  // split line into words
-	  const lineWordsList = line.split(/\s/g);
-	  
-	  console.log("One time for line!!!!!!", lineWordsList);
+
+  for (let line of code) {
+    const lineIndex = code.indexOf(line);
+    // split line into words
+    const lineWordsList = line.split(/\s/g);
 
     for (const key in KEYWORDS) {
-    //   console.log("key", key);
-    //   console.log("value", (KEYWORDS as any)[key]);
-	  if (lineWordsList.includes(key)) {
-		  console.log("key", key);
-		  console.log("value", (KEYWORDS as any)[key]);
-		  const keywordIndex = lineWordsList.indexOf(key);
-		  lineWordsList[keywordIndex] = (KEYWORDS as any)[key];
-		  code[lineIndex] = lineWordsList.join(" ");
-	  }
+      if (lineWordsList.includes(key)) {
+        const keywordIndex = lineWordsList.indexOf(key);
+        lineWordsList[keywordIndex] = (KEYWORDS as any)[key];
+        code[lineIndex] = lineWordsList.join(" ");
+      }
     }
   }
-  console.log(code);
-  
+  return code.join("\n");
 }
