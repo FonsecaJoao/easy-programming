@@ -1,0 +1,11 @@
+.palette-section {
+  width: 15%;
+  height: 100%;
+  float: left;
+}
+
+.diagram-section {
+  width: 85%;
+  height: 100%;
+  float: right;
+}
