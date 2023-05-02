@@ -1,11 +1,18 @@
 import { Component, ViewEncapsulation } from "@angular/core";
-
-import { ConnectorModel, NodeModel, PaletteModel, SymbolPreviewModel } from '@syncfusion/ej2-angular-diagrams/src';
+import { MatTabChangeEvent } from "@angular/material/tabs";
+import { pythonToPseudocode } from "src/modules/code-to-pseudocode/python-to-pseudocode";
+import { pseudoCodeToPython } from "src/modules/pseudocode-to-code/pseudocode-to-python";
 
 declare var pyscript: any;
 
 interface ElementWithInnerText extends Element {
   innerText: string;
+}
+
+enum TabsIndex {
+  PSEUDOCODE = 0,
+  CODE = 1,
+  FLOWCHART = 2,
 }
 @Component({
   selector: "app-root",
@@ -14,106 +21,111 @@ interface ElementWithInnerText extends Element {
   encapsulation: ViewEncapsulation.None,
 })
 export class AppComponent {
-  codeStoredInDatabase = "for i in range(8):\n\t\tprint(i)";
-  pseudocodeStoredInDatabase: string = "";
-  pseudocodeOptions = {
+  private _selectedTabIndex = 0;
+  private _previousSelectedTabIndex = 0;
+
+  hideTerminal = false;
+  code = "for i in range(8):\n\t\tprint(i)";
+  pseudoCode: string = "";
+  pseudoCodeOptions = {
     lineNumbers: true,
     theme: "default",
-    mode: "python",
-    lineWrapping: true,
-    extraKeys: {
-      "Ctrl-Q": function (cm: any) {
-        cm.foldCode(cm.getCursor());
-      },
-    },
-    foldGutter: true,
-    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+    mode: "plaintext",
+    gutters: ["CodeMirror-linenumbers"],
   };
 
+  get selectedTabIndex() {
+    return this._selectedTabIndex;
+  }
 
-  public symbolPreviewSettings: SymbolPreviewModel ={
-    height: 100,
-    width: 100,
-    offset: {
-      x: 0.5,
-      y: 0.5
+  set selectedTabIndex(value: number) {
+    this._previousSelectedTabIndex = this._selectedTabIndex;
+    this._selectedTabIndex = value;
+  }
+
+  private checkTerminalVisibility(index: number): void {
+    this.hideTerminal = index == TabsIndex.FLOWCHART ? true : false;
+  }
+
+  private selectOperationBasedOnTabChange(toCurrentIndex: number): void {
+    if (this._previousSelectedTabIndex === TabsIndex.PSEUDOCODE) {
+      this.selectPseudoCodeOperations(toCurrentIndex);
+    } else if (this._previousSelectedTabIndex === TabsIndex.CODE) {
+      this.selectCodeOperations(toCurrentIndex);
+    } else {
+      this.selectFlowchartOperations(toCurrentIndex);
     }
   }
 
-  public paletteExpandingAction(args: any) {
-    if(args.palette.id === "flow"){
-      args.cancel = true;
+  // Code Operations
+  private selectCodeOperations(toCurrentIndex: number) {
+    if (toCurrentIndex === TabsIndex.PSEUDOCODE) {
+      this.convertFromCodeToPseudoCode();
+    }
+    if (toCurrentIndex === TabsIndex.FLOWCHART) {
+      this.convertFromCodeToFlowchart();
     }
   }
 
-  public symbolPalette: PaletteModel[]=[
-    {
-      id: "basic",
-      expanded: false,
-      symbols: this.getBasicShapes(),
-      title: "Basic Shapes"
-    },
-    {
-      id: "flow",
-      symbols: this.getFlowShapes(),
-      title: "Flow Shapes"
-    },
-    {
-      id: "connectors",
-      symbols: this.getConnectores(),
-      title: "Connectors"
-    },
+  private retrieveCodeFromHtml(): string[] {
+    const repl = document.getElementsByClassName("cm-content");
+    const collection: HTMLCollection = repl[0].children;
+    const code: string[] = [];
 
-  ];
-
-  public getFlowShapes(): NodeModel[] {
-    let flowshapes: NodeModel[] = [
-      {id: "Terminator", shape: { type: "Flow", shape: "Terminator"}},
-      {id: "Process", shape: { type: "Flow", shape: "Process"}},
-      {id: "Decision", shape: { type: "Flow", shape: "Decision"}},
-      {id: "PreDefinedProcess", shape: { type: "Flow", shape: "PreDefinedProcess"}}
-    ];
-    return flowshapes;
+    for (const item in collection) {
+      if (collection.hasOwnProperty(item)) {
+        const element = collection[item] as ElementWithInnerText;
+        code.push(element.innerText);
+      }
+    }
+    return code;
   }
 
-  public getConnectores(): ConnectorModel[] {
-    let connectores: ConnectorModel [] = [
-      {
-        id: "Link1",
-        type: "Orthogonal",
-        sourcePoint: { x: 0, y: 0},
-        targetPoint: { x: 60, y: 60 },
-        targetDecorator: {shape: "Arrow"}
-      },
-      {
-        id: "Link2",
-        type: "Orthogonal",
-        sourcePoint: { x: 0, y: 0},
-        targetPoint: { x: 60, y: 60 },
-        targetDecorator: {shape: "None"}
-      },
-      {
-        id: "Link3",
-        type: "Straight",
-        sourcePoint: { x: 0, y: 0},
-        targetPoint: { x: 60, y: 60 },
-        targetDecorator: {shape: "Arrow"}
-      },
-    ];
-    return connectores;
+  private convertFromCodeToPseudoCode(): void {
+    const code: string[] = this.retrieveCodeFromHtml();
+    this.pseudoCode = pythonToPseudocode(code);
   }
 
-  public getBasicShapes(): NodeModel[] {
-    let basicshapes: NodeModel [] = [
-      { id: "Rectangle", shape: { type: "Basic", shape: "Rectangle"}},
-      { id: "Ellipse", shape: { type: "Basic", shape: "Ellipse"}},
-      { id: "Hexagon", shape: { type: "Basic", shape: "Hexagon"}},
-      { id: "Parallelogram", shape: { type: "Basic", shape: "Parallelogram"}},
-    ];
-    return basicshapes;
-
+  private convertFromCodeToFlowchart() {
+    throw new Error("Method not implemented.");
   }
 
+  // PseudoCode Operations
+  private selectPseudoCodeOperations(toCurrentIndex: number): void {
+    if (toCurrentIndex === TabsIndex.CODE) this.convertFromPseudoCodeToCode();
+    if (toCurrentIndex === TabsIndex.FLOWCHART) {
+      this.convertFromPseudoCodeToFlowchart();
+    }
+  }
+
+  private convertFromPseudoCodeToFlowchart() {
+    throw new Error("Method not implemented.");
+  }
+
+  private convertFromPseudoCodeToCode() {
+    const pseudoCode: string[] = this.pseudoCode.split("\n");
+    const code = pseudoCodeToPython(pseudoCode);
+    const repl = document.getElementsByClassName("cm-content");
+    (repl[0] as ElementWithInnerText).innerText = code;
+  }
+
+  // Flowchart Operations
+  private selectFlowchartOperations(toCurrentIndex: number) {
+    if (toCurrentIndex === TabsIndex.PSEUDOCODE) {
+      this.convertFromFlowchartToPseudoCode();
+    }
+    if (toCurrentIndex === TabsIndex.CODE) {
+      this.convertFromFlowchartToCode();
+    }
+  }
+
+  private convertFromFlowchartToCode() {
+    throw new Error("Method not implemented.");
+  }
+
+  private convertFromFlowchartToPseudoCode() {
+    throw new Error("Method not implemented.");
+  }
 
   execute(): void {
     const repl = document.getElementsByClassName("cm-content");
@@ -124,15 +136,15 @@ export class AppComponent {
   save(): void {
     const repl = document.getElementsByClassName("cm-content");
     const code = (repl[0] as ElementWithInnerText).innerText;
-    this.codeStoredInDatabase = code.trim();
+    this.code = code.trim();
   }
 
   handleChange(event: string) {
-    // console.log("this.content", this.content);
     console.log(event);
   }
 
-
-
-  
+  tabChanged({ index }: MatTabChangeEvent) {
+    this.checkTerminalVisibility(index);
+    this.selectOperationBasedOnTabChange(index);
+  }
 }
