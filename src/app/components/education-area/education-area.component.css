@@ -1,0 +1,98 @@
+@import "~codemirror/lib/codemirror";
+
+.page {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  height: 93.5vh;
+}
+
+.page > .programming-area {
+  order: 1;
+  flex-grow: 11;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.page > .programming-area > .terminal {
+  overflow-y: auto;
+  height: 300px;
+  background: black;
+  border-top: 2px solid grey;
+}
+
+.page > .menu-area {
+  order: 2;
+  flex-grow: 1;
+  border-left: 2px solid grey;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px;
+}
+
+.page > .menu-area > .buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.page > .menu-area > .buttons > .execute {
+  background-color: #8ad8a5;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  box-shadow: 3px 4px 2px 0px grey;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.page > .menu-area > .buttons > .save {
+  background-color: #bdd3c5;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  box-shadow: 3px 4px 2px 0px grey;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+::ng-deep pre {
+  margin: 0;
+}
+
+#flowchartCanvas {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+/* Styles for pseudocode */
+.CodeMirror {
+  height: 64vh;
+}
+
+/* Angular Material Tabs styles */
+.mat-tab-label {
+  padding: 0 50px;
+  background-color: white;
+  color: black;
+  font-weight: 500;
+}
+
+.mat-tab-label.mat-tab-label-active {
+  padding: 0 50px;
+  background-color: black;
+  color: white;
+  font-weight: 500;
+}
+
+.mat-ink-bar {
+  background-color: black;
+}
+
+.mat-tab-body-wrapper {
+  padding: 10px 5px;
+  height: 61vh;
+}
