@@ -1,7 +1,10 @@
-import { Component } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { MatTabChangeEvent } from "@angular/material/tabs";
+import { AuthService } from "src/app/auth/auth.service";
 import { pythonToPseudocode } from "src/modules/code-to-pseudocode/python-to-pseudocode";
 import { pseudoCodeToPython } from "src/modules/pseudocode-to-code/pseudocode-to-python";
+
+import { Subscription } from "rxjs";
 
 declare var pyscript: any;
 
@@ -20,9 +23,22 @@ enum TabsIndex {
   styleUrls: ["./education-area.component.css"],
   // encapsulation: ViewEncapsulation.None,
 })
-export class EducationAreaComponent {
+export class EducationAreaComponent implements OnInit, OnDestroy {
   private _selectedTabIndex = 0;
   private _previousSelectedTabIndex = 0;
+
+  private authStatusSub!: Subscription;
+  userIsAuthenticated = false;
+  constructor(private authService: AuthService) {}
+
+  ngOnInit() {
+    this.userIsAuthenticated = this.authService.getIsAuth();
+    this.authStatusSub = this.authService
+      .getAuthStatusListener()
+      .subscribe((isAuthenticated) => {
+        this.userIsAuthenticated = isAuthenticated;
+      });
+  }
 
   hideTerminal = false;
   code = "for i in range(8):\n\t\tprint(i)";
@@ -146,5 +162,9 @@ export class EducationAreaComponent {
   tabChanged({ index }: MatTabChangeEvent) {
     this.checkTerminalVisibility(index);
     this.selectOperationBasedOnTabChange(index);
+  }
+
+  ngOnDestroy(): void {
+    this.authStatusSub.unsubscribe();
   }
 }
