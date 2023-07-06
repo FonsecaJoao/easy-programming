@@ -24,9 +24,10 @@
             ],
             "styles": [
               "./node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",
+              "src/styles/pyscript.css",
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": ["src/scripts/pyscript.min.js"]
           },
           "configurations": {
             "production": {
