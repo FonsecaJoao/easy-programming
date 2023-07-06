@@ -97,7 +97,7 @@ app.post("/api/user/signup", (req, res) => {
       }
 
       if (results.length > 0) {
-        res.status(409).json({ error: "Email já está em uso" });
+        res.status(409).json({ message: "Invalid authentication credentials!" });
         return;
       }
 
@@ -153,7 +153,7 @@ app.post("/api/user/login", (req, res, next) => {
         }
 
         if (!result) {
-          return res.status(401).json({ message: "Auth failed" });
+          return res.status(401).json({ message: "Invalid authentication credentials!" });
         }
 
         const token = jwt.sign(
