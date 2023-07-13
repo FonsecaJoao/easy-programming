@@ -5,6 +5,9 @@
       [(selectedIndex)]="selectedTabIndex"
       (selectedTabChange)="tabChanged($event)"
     >
+      <mat-tab [preserveContent]="true" label="Enunciado">
+        <p>Este é um exercicio</p>
+      </mat-tab>
       <mat-tab [preserveContent]="true" label="Pseudocódigo">
         <ngx-codemirror
           [(ngModel)]="pseudoCode"
