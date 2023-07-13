@@ -7,7 +7,7 @@ const KEYWORDS = {
   if: "IF",
   else: "ELSE",
   ["else:"]: "ELSE",
-  elif: "ELSE IF",
+  elif: "ELSE_IF",
   // BOOLEAN_OPERATORS
   True: "TRUE",
   False: "FALSE",
@@ -19,30 +19,35 @@ const KEYWORDS = {
   pass: "PASS",
   in: "IN",
   // FUNCTION_OPERATORS
-  def: "DEFINE FUNCTION",
+  def: "DEFINE_FUNCTION",
   return: "RETURN",
   // NULL_OPERATORS
   None: "NULL",
   // COMPARISON_OPERATORS
   "==": "EQUALS",
   "!=": "DIFFERENT",
-  "<": "LOWER THAN",
-  ">": "HIGHER THAN",
-  "<=": "LOWER OR EQUALS THAN",
-  ">=": "HIGHER OR EQUALS THAN",
+  "<": "LOWER_THAN",
+  ">": "HIGHER_THAN",
+  "<=": "LOWER_OR_EQUALS_THAN",
+  ">=": "HIGHER_OR_EQUALS_THAN",
   // ARITHMETIC_OPERATORS
   "+": "PLUS",
   "-": "MINUS",
   "*": "TIMES",
   "/": "DIVIDE",
   "%": "MODULUS",
-  "**": "POWER OF",
-  "//": "DIVIDE AND ROUND DOWN",
+  "**": "POWER_OF",
+  "//": "DIVIDE_AND_ROUND_DOWN",
   // ASSIGNMENT_OPERATORS
   "=": "ASSIGN",
   // INCREMENT_OPERATORS
   "+=": "INCREMENT",
   "-=": "DECREMENT",
+  "*=": "TIMES_EQUALS",
+  "/=": "DIVIDE_EQUALS",
+  "%=": "MODULUS_EQUALS",
+  "**=": "POWER_OF_EQUALS",
+  "//=": "DIVIDE_AND_ROUND_DOWN_EQUALS",
   // MISC_OPERATORS
   print: "OUTPUT",
   input: "INPUT",

@@ -6,7 +6,7 @@ const KEYWORDS = {
   // CONDITIONAL_OPERATORS
   IF: "if",
   ELSE: "else:",
-  "ELSE IF": "elif",
+  "ELSE_IF": "elif",
   // BOOLEAN_OPERATORS
   TRUE: "True",
   FALSE: "False",
@@ -18,31 +18,35 @@ const KEYWORDS = {
   PASS: "pass",
   IN: "in",
   // FUNCTION_OPERATORS
-  DEFINE: "def",
-  FUNCTION: "",
+  "DEFINE_FUNCTION": "def",
   RETURN: "return",
   // NULL_OPERATORS
   NULL: "None",
   // COMPARISON_OPERATORS
   EQUALS: "==",
   DIFFERENT: "!=",
-  "LOWER THAN": "<",
-  "HIGHER THAN": ">",
-  "LOWER OR EQUALS THAN": "<=",
-  "HIGHER OR EQUALS THAN": ">=",
+  "LOWER_THAN": "<",
+  "HIGHER_THAN": ">",
+  "LOWER_OR_EQUALS_THAN": "<=",
+  "HIGHER_OR_EQUALS_THAN": ">=",
   // ARITHMETIC_OPERATORS
   PLUS: "+",
   MINUS: "-",
   TIMES: "*",
   DIVIDE: "/",
   MODULUS: "%",
-  "POWER OF": "**",
-  "DIVIDE AND ROUND DOWN": "//",
+  "POWER_OF": "**",
+  "DIVIDE_AND_ROUND_DOWN": "//",
   // ASSIGNMENT_OPERATORS
   ASSIGN: "=",
   // INCREMENT_OPERATORS
   INCREMENT: "+=",
   DECREMENT: "-=",
+  "TIMES_EQUALS": "*=",
+  "DIVIDE_EQUALS": "/=",
+  "MODULUS_EQUALS": "%=",
+  "POWER_OF_EQUALS": "**=",
+  "DIVIDE_AND_ROUND_DOWN_EQUALS": "//=",
   // MISC_OPERATORS
   OUTPUT: "print",
   INPUT: "input",
