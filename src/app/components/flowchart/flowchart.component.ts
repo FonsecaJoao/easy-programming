@@ -3,9 +3,8 @@ import {
   ConnectorModel,
   NodeModel,
   PaletteModel,
-  SymbolPreviewModel,
+  SymbolPreviewModel
 } from "@syncfusion/ej2-angular-diagrams";
-import { FlowChartNodeModel } from "src/app/interfaces/flowchart-node-model";
 
 @Component({
   selector: "app-flowchart",
@@ -24,19 +23,18 @@ export class FlowchartComponent {
   symbolPalette: PaletteModel[] = [
     {
       id: "basic",
-      expanded: false,
       symbols: this.getBasicShapes(),
-      title: "Basic Shapes",
+      title: "Formas básicas",
     },
     {
       id: "flow",
       symbols: this.getFlowShapes(),
-      title: "Flow Shapes",
+      title: "Formas de fluxo",
     },
     {
       id: "connectors",
       symbols: this.getConnectors(),
-      title: "Connectors",
+      title: "Linhas",
     },
   ];
 
@@ -69,13 +67,6 @@ export class FlowchartComponent {
         targetDecorator: { shape: "Arrow" },
       },
       {
-        id: "Link2",
-        type: "Orthogonal",
-        sourcePoint: { x: 0, y: 0 },
-        targetPoint: { x: 60, y: 60 },
-        targetDecorator: { shape: "None" },
-      },
-      {
         id: "Link3",
         type: "Straight",
         sourcePoint: { x: 0, y: 0 },
@@ -86,27 +77,23 @@ export class FlowchartComponent {
     return connectors;
   }
 
-  getBasicShapes(): FlowChartNodeModel[] {
-    const basicShapes: FlowChartNodeModel[] = [
+  getBasicShapes(): NodeModel[] {
+    const basicShapes: NodeModel[] = [
       {
         id: "Rectangle",
         shape: { type: "Basic", shape: "Rectangle" },
-        pseudocode: [],
       },
       {
         id: "Ellipse",
         shape: { type: "Basic", shape: "Ellipse" },
-        pseudocode: ["if ( {condition} ) {", "    // do something", "}"],
       },
       {
         id: "Hexagon",
         shape: { type: "Basic", shape: "Hexagon" },
-        pseudocode: [],
       },
       {
         id: "Parallelogram",
         shape: { type: "Basic", shape: "Parallelogram" },
-        pseudocode: [],
       },
     ];
     return basicShapes;
