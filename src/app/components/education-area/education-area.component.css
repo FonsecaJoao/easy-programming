@@ -4,13 +4,14 @@
   display: flex;
   flex-wrap: nowrap;
   align-items: stretch;
-  height: 93.5vh;
+  height: calc(100vh - 64px); /* 64px is the height of the navbar */
 }
 
 .page > .programming-area {
+  display: flex;
   order: 1;
   flex-grow: 11;
-  display: flex;
+  flex-basis: 0;
   flex-direction: column;
   justify-content: space-between;
 }
@@ -23,12 +24,13 @@
 }
 
 .page > .menu-area {
+  display: flex;
   order: 2;
   flex-grow: 1;
-  border-left: 2px solid grey;
-  display: flex;
+  flex-basis: 0;
   flex-direction: column;
   justify-content: flex-end;
+  border-left: 2px solid grey;
   padding: 20px;
 }
 
@@ -60,6 +62,11 @@
 
 ::ng-deep pre {
   margin: 0;
+}
+
+::ng-deep mat-tab-group.mat-mdc-tab-group,
+::ng-deep .mat-mdc-tab-body-wrapper {
+  height: 100%;
 }
 
 #flowchartCanvas {

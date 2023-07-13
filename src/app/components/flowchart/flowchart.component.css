@@ -1,14 +1,17 @@
 .palette-section {
-  flex-grow: 1;
+  background: white;
 }
 
 .diagram-section {
-
+  grid-column-start: 2;
+  grid-column-end: 7;
 }
 
 .flowchart-section {
-  display: flex;
+  display: grid;
   width: 100%;
   background: red;
-  height: 95vh;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: 1fr;
+  height: 100%;
 }
