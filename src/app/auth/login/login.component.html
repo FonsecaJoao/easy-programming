@@ -19,6 +19,7 @@
     <mat-form-field>
       <input
         type="password"
+        type="{{ showPassword ? 'text' : 'password' }}"
         name="password"
         ngModel
         matInput
@@ -26,6 +27,17 @@
         #passwordInput="ngModel"
         required
       />
+      <button
+        mat-icon-button
+        matSuffix
+        type="button"
+        (click)="showPassword = !showPassword"
+        [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+      >
+        <mat-icon>{{
+          showPassword ? "visibility_off" : "visibility"
+        }}</mat-icon>
+      </button>
       <mat-error *ngIf="passwordInput.invalid">
         Please enter a valid password.</mat-error
       >

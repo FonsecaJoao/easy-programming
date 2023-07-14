@@ -10,6 +10,10 @@ const bcrypt = require("bcrypt");
 
 const jwt = require("jsonwebtoken");
 
+
+
+const fetch = require('node-fetch');
+
 app.use(cors());
 app.use(bodyparser.json());
 
@@ -81,7 +85,6 @@ server.listen(port);
 
 module.exports = mysqlConnection;
 
-// Rota de registro de usuário
 app.post("/api/user/signup", (req, res) => {
   const { nome, email, password } = req.body;
 
@@ -109,7 +112,7 @@ app.post("/api/user/signup", (req, res) => {
           return;
         }
 
-        // Insere o usuário no banco de dados
+        // Insere o utilizador na base de dados
         mysqlConnection.query(
           "INSERT INTO user (name, email, password) VALUES (?, ?, ?)",
           [nome, email, hash],
@@ -167,3 +170,86 @@ app.post("/api/user/login", (req, res, next) => {
     }
   );
 });
+
+
+//inserir exercicio (a funcionar)
+
+app.post('/inserir', (req, res) => {
+  const exercises = req.body.exercises
+  //const { text_code, user_id } = req.body;
+
+  if(!Array.isArray(exercises)) {
+    res.status(400).json({ error: "Lista de exercicios invalida"});
+    return;
+  }
+  const values = exercises.map((exercicio) => [exercicio.text_code, exercicio.user_id]);
+
+  const query = 'INSERT IGNORE INTO exercise (text_code, user_id) VALUES ?';
+  //const values = [text_code, user_id];
+  
+
+
+  mysqlConnection.query(query, [values], (error, results) => {
+    if (error) {
+      console.error('Erro ao inserir o enunciado na base de dados:', error);
+      res.status(500).json({ error: 'Erro ao inserir o enunciado' });
+      return;
+    }
+
+    const affectedRows = results.affectedRows;
+
+    if (affectedRows > 0) {
+      res.json({ success: true });
+    } else {
+      res.json({ success: false, message: 'O enunciado já existe na base de dados' });
+    }
+  });
+});
+
+app.get('/exercise', (req, res) => {
+  const query = 'SELECT * FROM exercise';
+
+  mysqlConnection.query(query, (error, results) => {
+    if (error) {
+      console.error('Erro ao recuperar o enunciado da base de dados:', error);
+      res.status(500).json({ error: 'Erro ao recuperar o enunciado' });
+      return;
+    }
+
+   // const exercises = results[0]; // Assumindo que há apenas um enunciado
+
+    res.json(results);
+  });
+});
+
+const exercicio1 = {
+  text_code: 'Construa um algoritmo que solicite ao utilizador o seu nome de se seguida imprima uma saudação com o seu nome.',
+  user_id: 1
+};
+
+const exercicio2 = {
+  text_code: "Construa um algoritmo que solicite ao utilizador o seu nome, a sua idade e de se seguida imprima uma saudação com o seu nome e a sua idade.",
+  user_id: 1
+};
+
+const exercises = [exercicio1, exercicio2];
+
+fetch('http://localhost:3000/inserir', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ exercises })
+})
+  .then(response => response.json())
+  .then(data => {
+    console.log('Exercícios inseridos com sucesso:', data);
+  })
+  .catch(error => {
+    console.error('Erro ao inserir os exercícios:', error);
+  });
+
+
+  
+
+
