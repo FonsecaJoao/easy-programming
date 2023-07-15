@@ -30,10 +30,9 @@ export class AuthService {
     const authData: AuthData = { nome: nome, email: email, password: password };
     this.http
       .post("http://localhost:3000/api/user/signup", authData)
-      .subscribe(() => {
-        this.router.navigate(["/"]);
-      }, error => {
-        this.authStatusListener.next(false);
+      .subscribe({
+        next: (_) => this.router.navigate(["/exercise"]),
+        error: (_) => this.authStatusListener.next(false),
       });
   }
 
@@ -44,24 +43,24 @@ export class AuthService {
         "http://localhost:3000/api/user/login",
         authData
       )
-      .subscribe((response) => {
-        const token = response.token;
-        this.token = token;
-        if (token) {
-          const expiresInDuration = response.expiresIn;
-          this.setAuthTimer(expiresInDuration);
-          this.isAuthenticated = true;
-          this.authStatusListener.next(true);
-          const now = new Date();
-          const expirationDate = new Date(
-            now.getTime() + expiresInDuration * 1000
-          );
-          console.log(expirationDate);
-          this.saveAuthData(token, expirationDate);
-          this.router.navigate(["/"]);
-        }
-      }, error => {
-        this.authStatusListener.next(false);
+      .subscribe({
+        next: (response) => {
+          const token = response.token;
+          this.token = token;
+          if (token) {
+            const expiresInDuration = response.expiresIn;
+            this.setAuthTimer(expiresInDuration);
+            this.isAuthenticated = true;
+            this.authStatusListener.next(true);
+            const now = new Date();
+            const expirationDate = new Date(
+              now.getTime() + expiresInDuration * 1000
+            );
+            this.saveAuthData(token, expirationDate);
+            this.router.navigate(["/exercise"]);
+          }
+        },
+        error: (_) => this.authStatusListener.next(false),
       });
   }
 
@@ -86,11 +85,10 @@ export class AuthService {
     this.authStatusListener.next(false);
     clearTimeout(this.tokenTimer);
     this.clearAuthData();
-    this.router.navigate(["/"]);
+    this.router.navigate(["/login"]);
   }
 
   private setAuthTimer(duration: number) {
-    console.log("Setting timer: " + duration);
     this.tokenTimer = setTimeout(() => {
       this.logout();
     }, duration * 1000);
