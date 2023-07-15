@@ -1,0 +1,29 @@
+<main class="exercise-list">
+  <h1 class="title">Lista de Exercícios</h1>
+  <table
+    *ngIf="dataSource?.length"
+    mat-table
+    [dataSource]="dataSource"
+    class="mat-elevation-z8"
+  >
+    <!-- Id Column -->
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef>No.</th>
+      <td mat-cell *matCellDef="let item">{{ item.id }}</td>
+    </ng-container>
+
+    <!-- Pseudocode Column -->
+    <ng-container matColumnDef="pseudocode">
+      <th mat-header-cell *matHeaderCellDef>Pseudocode</th>
+      <td mat-cell *matCellDef="let item">{{ item.pseudocode }}</td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr
+      class="clickable"
+      (click)="navigateToExercise(item.id)"
+      mat-row
+      *matRowDef="let item; columns: displayedColumns"
+    ></tr>
+  </table>
+</main>
