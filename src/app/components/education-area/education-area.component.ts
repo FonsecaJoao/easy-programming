@@ -1,12 +1,10 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { MatTabChangeEvent } from "@angular/material/tabs";
+import { ActivatedRoute } from "@angular/router";
+import { Subscription } from "rxjs";
 import { AuthService } from "src/app/auth/auth.service";
 import { pythonToPseudocode } from "src/modules/code-to-pseudocode/python-to-pseudocode";
 import { pseudoCodeToPython } from "src/modules/pseudocode-to-code/pseudocode-to-python";
-
-import { Subscription } from "rxjs";
-
-import { HttpClient } from "@angular/common/http";
 
 declare var pyscript: any;
 
@@ -15,9 +13,10 @@ interface ElementWithInnerText extends Element {
 }
 
 enum TabsIndex {
-  PSEUDOCODE = 0,
-  CODE = 1,
-  FLOWCHART = 2,
+  EXERCISE = 0,
+  PSEUDOCODE = 1,
+  CODE = 2,
+  FLOWCHART = 3,
 }
 @Component({
   selector: "app-education-area",
@@ -26,41 +25,12 @@ enum TabsIndex {
   // encapsulation: ViewEncapsulation.None,
 })
 export class EducationAreaComponent implements OnInit, OnDestroy {
-  private _selectedTabIndex = 0;
-  private _previousSelectedTabIndex = 0;
+  private _selectedTabIndex = 1;
+  private _previousSelectedTabIndex = 1;
+  private authStatusSub$!: Subscription;
+  private exerciseId!: number;
 
-  private authStatusSub!: Subscription;
   userIsAuthenticated = false;
-
-  exercises:any;
-
-  constructor(private authService: AuthService, private http: HttpClient) {}
-
-  ngOnInit() {
-    this.userIsAuthenticated = this.authService.getIsAuth();
-    this.authStatusSub = this.authService
-      .getAuthStatusListener()
-      .subscribe((isAuthenticated) => {
-        this.userIsAuthenticated = isAuthenticated;
-      });
-    this.recuperarExercicio();
-  }
-
-
-  //Exercise ( a funcionar)
-
-  recuperarExercicio():void {
-    this.http.get("http://localhost:3000/exercise").subscribe(
-      (exercises:any) => {
-        this.exercises = exercises;
-      },
-      (error) => {
-        console.error('Erro ao recuperar o exercicio:', error);
-      }
-    )
-  }
-
-  
   hideTerminal = false;
   code = "for i in range(8):\n\t\tprint(i)";
   pseudoCode: string = "";
@@ -80,8 +50,30 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
     this._selectedTabIndex = value;
   }
 
+  constructor(
+    private readonly authService: AuthService,
+    private readonly activatedRoute: ActivatedRoute
+  ) {}
+
+  ngOnInit() {
+    this.userIsAuthenticated = this.authService.getIsAuth();
+    this.authStatusSub$ = this.authService
+      .getAuthStatusListener()
+      .subscribe((isAuthenticated) => {
+        this.userIsAuthenticated = isAuthenticated;
+      });
+    this.exerciseId = Number(
+      this.activatedRoute.snapshot.paramMap.get("exerciseId")
+    );
+  }
+
+  ngOnDestroy() {
+    this.authStatusSub$.unsubscribe();
+  }
+
   private checkTerminalVisibility(index: number): void {
-    this.hideTerminal = index == TabsIndex.FLOWCHART ? true : false;
+    const hideTerminalConditions = [TabsIndex.FLOWCHART, TabsIndex.EXERCISE];
+    this.hideTerminal = hideTerminalConditions.includes(index) ? true : false;
   }
 
   private selectOperationBasedOnTabChange(toCurrentIndex: number): void {
@@ -183,9 +175,5 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
   tabChanged({ index }: MatTabChangeEvent) {
     this.checkTerminalVisibility(index);
     this.selectOperationBasedOnTabChange(index);
-  }
-
-  ngOnDestroy(): void {
-    this.authStatusSub.unsubscribe();
   }
 }
