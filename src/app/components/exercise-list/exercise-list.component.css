@@ -1,0 +1,13 @@
+.exercise-list {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 20px;
+}
+
+.exercise-list > .title {
+  margin-bottom: 20px;
+}
+
+.clickable {
+  cursor: pointer;
+}

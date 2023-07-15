@@ -7,10 +7,11 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { CodemirrorModule } from "@ctrl/ngx-codemirror";
 import {
   DiagramModule,
-  SymbolPaletteModule
+  SymbolPaletteModule,
 } from "@syncfusion/ej2-angular-diagrams";
 import { AngularMaterialModule } from "./angular-material.module";
 import { AppRoutingModule } from "./app-routing.module";
+import { MatTableModule } from "@angular/material/table";
 
 import { AppComponent } from "./app.component";
 import { LoginComponent } from "./auth/login/login.component";
@@ -33,7 +34,7 @@ import { AuthInterceptor } from "./auth/auth-interceptor";
     SignupComponent,
     EducationAreaComponent,
     ExerciseListComponent,
-    ErrorComponent
+    ErrorComponent,
   ],
   imports: [
     BrowserModule,
@@ -45,14 +46,15 @@ import { AuthInterceptor } from "./auth/auth-interceptor";
     AngularMaterialModule,
     AppRoutingModule,
     HttpClientModule,
-    MatDialogModule
+    MatDialogModule,
+    MatTableModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   bootstrap: [AppComponent],
-  entryComponents: [ErrorComponent]
+  entryComponents: [ErrorComponent],
 })
 export class AppModule {}
