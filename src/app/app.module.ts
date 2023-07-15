@@ -18,9 +18,9 @@ import { SignupComponent } from "./auth/signup/signup.component";
 import { EducationAreaComponent } from "./components/education-area/education-area.component";
 import { ExerciseListComponent } from "./components/exercise-list/exercise-list.component";
 import { FlowchartComponent } from "./components/flowchart/flowchart.component";
-import { ErrorInterceptor } from "./error-interceptor";
-import { ErrorComponent } from "./error/error.component";
-import { HeaderComponent } from "./header/header.component";
+import { ErrorInterceptor } from "./interceptors/error-interceptor";
+import { ErrorComponent } from "./components/error/error.component";
+import { HeaderComponent } from "./components/header/header.component";
 
 import { AuthInterceptor } from "./auth/auth-interceptor";
 
