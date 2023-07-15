@@ -6,6 +6,8 @@ import { pseudoCodeToPython } from "src/modules/pseudocode-to-code/pseudocode-to
 
 import { Subscription } from "rxjs";
 
+import { HttpClient } from "@angular/common/http";
+
 declare var pyscript: any;
 
 interface ElementWithInnerText extends Element {
@@ -29,7 +31,10 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
 
   private authStatusSub!: Subscription;
   userIsAuthenticated = false;
-  constructor(private authService: AuthService) {}
+
+  exercises:any;
+
+  constructor(private authService: AuthService, private http: HttpClient) {}
 
   ngOnInit() {
     this.userIsAuthenticated = this.authService.getIsAuth();
@@ -38,8 +43,24 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
       .subscribe((isAuthenticated) => {
         this.userIsAuthenticated = isAuthenticated;
       });
+    this.recuperarExercicio();
   }
 
+
+  //Exercise ( a funcionar)
+
+  recuperarExercicio():void {
+    this.http.get("http://localhost:3000/exercise").subscribe(
+      (exercises:any) => {
+        this.exercises = exercises;
+      },
+      (error) => {
+        console.error('Erro ao recuperar o exercicio:', error);
+      }
+    )
+  }
+
+  
   hideTerminal = false;
   code = "for i in range(8):\n\t\tprint(i)";
   pseudoCode: string = "";
