@@ -190,11 +190,9 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
   }
 
   tabChanged(event: number): void {
-     // const index = event.index;
       this.checkTerminalVisibility(event);
       this.selectOperationBasedOnTabChange(event);
       if (event === 1) {
-        // Índice 1 corresponde à tab "código"
         const repl = document.getElementsByClassName("cm-content");
         const pseudoCode = (repl[0] as ElementWithInnerText).innerText.trim();
         this.savePseudocode();
@@ -214,11 +212,9 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
     this.http.post("http://localhost:3000/save_pseudocode", data).subscribe(
       () => {
         console.log("Pseudocódigo guardado com sucesso");
-        // Realize qualquer ação adicional necessária após o salvamento do pseudocódigo
       },
       (error: any) => {
         console.error("Erro ao guardar o pseudocódigo:", error);
-        // Lide com o erro de acordo com a sua lógica de tratamento de erros
       }
     );
   }

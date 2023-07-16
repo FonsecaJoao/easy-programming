@@ -290,9 +290,8 @@ app.get("/exercise/:id", limiter, (req, res) => {
 app.post("/save_pseudocode", (req, res) => {
   const { pseudoCode, exerciseId } = req.body;
 
-  // Aqui você pode realizar as validações e processamentos necessários nos dados do pseudocódigo
+  // validações e processamentos necessários nos dados do pseudocódigo
 
-  // Em seguida, você pode salvar o pseudocódigo na base de dados
   const query =
     "INSERT INTO exercise_solution (pseudocode, exercise_id) VALUES (?, ?)";
   const values = [pseudoCode, exerciseId];
