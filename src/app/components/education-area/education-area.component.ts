@@ -9,6 +9,9 @@ import { pseudoCodeToPython } from "src/modules/pseudocode-to-code/pseudocode-to
 import { ExerciseService } from "src/app/services/exercise.service";
 import { Exercise } from "src/app/entities/interfaces/exercise.interface";
 
+import { HttpClient } from "@angular/common/http";
+
+
 declare var pyscript: any;
 
 interface ElementWithInnerText extends Element {
@@ -31,7 +34,7 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
   private _selectedTabIndex = 1;
   private _previousSelectedTabIndex = 1;
   private authStatusSub$!: Subscription;
-  private exerciseId!: number;
+  public exerciseId!: number;
 
   selectedExercise: Exercise | undefined;
 
@@ -58,7 +61,8 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
   constructor(
     private readonly authService: AuthService,
     private readonly activatedRoute: ActivatedRoute,
-    private exerciseService: ExerciseService
+    private exerciseService: ExerciseService,
+    private http: HttpClient
   ) {}
 
   ngOnInit() {
@@ -74,13 +78,12 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
     if (this.exerciseId) {
       this.exerciseService.getExerciseById(this.exerciseId).subscribe(
         (exercise: Exercise) => {
-          console.log(exercise)
+          console.log(exercise);
           this.selectedExercise = exercise;
         },
         (error) => {
-          console.error('Erro ao buscar o exercício:', error);
+          console.error("Erro ao buscar o exercício:", error);
         }
-        
       );
     }
   }
@@ -186,12 +189,38 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
     this.code = code.trim();
   }
 
+  tabChanged(event: number): void {
+      this.checkTerminalVisibility(event);
+      this.selectOperationBasedOnTabChange(event);
+      if (event === 1) {
+        const repl = document.getElementsByClassName("cm-content");
+        const pseudoCode = (repl[0] as ElementWithInnerText).innerText.trim();
+        this.savePseudocode();
+      }
+    }
+
+  savePseudocode(): void {
+    const pseudoCode = this.pseudoCode;
+    const exerciseId = this.exerciseId;
+
+    const data = {
+      pseudoCode: pseudoCode,
+      exerciseId: exerciseId,
+      // Outros dados a serem enviados, se necessário
+    };
+
+    this.http.post("http://localhost:3000/save_pseudocode", data).subscribe(
+      () => {
+        console.log("Pseudocódigo guardado com sucesso");
+      },
+      (error: any) => {
+        console.error("Erro ao guardar o pseudocódigo:", error);
+      }
+    );
+  }
+
   handleChange(event: string) {
     console.log(event);
   }
-
-  tabChanged({ index }: MatTabChangeEvent) {
-    this.checkTerminalVisibility(index);
-    this.selectOperationBasedOnTabChange(index);
-  }
 }
+  

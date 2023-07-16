@@ -20,4 +20,5 @@ export class ExerciseService {
     const url = `${this.baseUrl}/${id}`;
     return this.http.get<Exercise>(url);
   }
+
 }
