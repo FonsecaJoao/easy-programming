@@ -287,7 +287,7 @@ app.get("/exercise/:id", limiter, (req, res) => {
 });
 
 //guardar pseudocodigo na base de dados
-app.post("/save_pseudocode", (req, res) => {
+app.post("/save_pseudocode", limiter,(req, res) => {
   const { pseudoCode, exerciseId } = req.body;
 
   // validações e processamentos necessários nos dados do pseudocódigo
