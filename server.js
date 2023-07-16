@@ -10,12 +10,20 @@ const bcrypt = require("bcrypt");
 
 const jwt = require("jsonwebtoken");
 
+const rateLimit = require('express-rate-limit');
+
+
 
 
 const fetch = require('node-fetch');
 
 app.use(cors());
 app.use(bodyparser.json());
+
+const limiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 10, // Allow a maximum of 10 requests per minute
+});
 
 const mysqlConnection = mysql.createConnection({
   host: "localhost",
@@ -251,5 +259,25 @@ fetch('http://localhost:3000/inserir', {
 
 
   
-
-
+  app.get('/exercise/:id', limiter, (req, res) => {
+    const exerciseId = req.params.id;
+    const query = 'SELECT * FROM exercise WHERE id = ?';
+    const values = [exerciseId];
+  
+    mysqlConnection.query(query, values, (error, results) => {
+      if (error) {
+        console.error('Erro ao buscar o exercício:', error);
+        res.status(500).json({ error: 'Erro ao buscar o exercício' });
+        return;
+      }
+  
+      if (results.length === 0) {
+        res.status(404).json({ error: 'Exercício não encontrado' });
+        return;
+      }
+  
+      const exercise = results[0];
+      res.json(exercise);
+    });
+  });
+  

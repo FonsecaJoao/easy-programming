@@ -1,5 +1,5 @@
 export interface Exercise {
   id: number;
-  pseudocode: string;
+  text_code: string;
   user_id: number;
 }
