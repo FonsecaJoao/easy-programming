@@ -182,7 +182,7 @@ app.post("/api/user/login", (req, res, next) => {
 
 //inserir exercicio (a funcionar)
 
-app.post("/inserir", (req, res) => {
+app.post("/inserir", limiter, (req, res) => {
   const exercises = req.body.exercises;
   //const { text_code, user_id } = req.body;
 
