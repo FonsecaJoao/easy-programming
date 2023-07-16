@@ -6,10 +6,10 @@
       (selectedTabChange)="tabChanged($event)"
     >
       <mat-tab [preserveContent]="true" label="Enunciado">
-        <!-- <div *ngIf="exercise">
-          <h2>{{ exercise.id }}</h2> -->
-        <!-- <p>{{ exercise.text_code }}</p>
-        </div> -->
+        <div *ngIf="selectedExercise">
+          <h2>{{ selectedExercise.id }}</h2>
+          <p>{{ selectedExercise.text_code }}</p>
+        </div>
       </mat-tab>
       <mat-tab [preserveContent]="true" label="Pseudocódigo">
         <ngx-codemirror

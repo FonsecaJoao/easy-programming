@@ -6,6 +6,9 @@ import { AuthService } from "src/app/auth/auth.service";
 import { pythonToPseudocode } from "src/modules/code-to-pseudocode/python-to-pseudocode";
 import { pseudoCodeToPython } from "src/modules/pseudocode-to-code/pseudocode-to-python";
 
+import { ExerciseService } from "src/app/services/exercise.service";
+import { Exercise } from "src/app/entities/interfaces/exercise.interface";
+
 declare var pyscript: any;
 
 interface ElementWithInnerText extends Element {
@@ -30,6 +33,8 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
   private authStatusSub$!: Subscription;
   private exerciseId!: number;
 
+  selectedExercise: Exercise | undefined;
+
   userIsAuthenticated = false;
   hideTerminal = false;
   code = "for i in range(8):\n\t\tprint(i)";
@@ -52,7 +57,8 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly authService: AuthService,
-    private readonly activatedRoute: ActivatedRoute
+    private readonly activatedRoute: ActivatedRoute,
+    private exerciseService: ExerciseService
   ) {}
 
   ngOnInit() {
@@ -65,6 +71,18 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
     this.exerciseId = Number(
       this.activatedRoute.snapshot.paramMap.get("exerciseId")
     );
+    if (this.exerciseId) {
+      this.exerciseService.getExerciseById(this.exerciseId).subscribe(
+        (exercise: Exercise) => {
+          console.log(exercise)
+          this.selectedExercise = exercise;
+        },
+        (error) => {
+          console.error('Erro ao buscar o exercício:', error);
+        }
+        
+      );
+    }
   }
 
   ngOnDestroy() {
