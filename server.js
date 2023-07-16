@@ -10,12 +10,9 @@ const bcrypt = require("bcrypt");
 
 const jwt = require("jsonwebtoken");
 
-const rateLimit = require('express-rate-limit');
+const rateLimit = require("express-rate-limit");
 
-
-
-
-const fetch = require('node-fetch');
+const fetch = require("node-fetch");
 
 app.use(cors());
 app.use(bodyparser.json());
@@ -108,7 +105,9 @@ app.post("/api/user/signup", (req, res) => {
       }
 
       if (results.length > 0) {
-        res.status(409).json({ message: "Invalid authentication credentials!" });
+        res
+          .status(409)
+          .json({ message: "Invalid authentication credentials!" });
         return;
       }
 
@@ -164,7 +163,9 @@ app.post("/api/user/login", (req, res, next) => {
         }
 
         if (!result) {
-          return res.status(401).json({ message: "Invalid authentication credentials!" });
+          return res
+            .status(401)
+            .json({ message: "Invalid authentication credentials!" });
         }
 
         const token = jwt.sign(
@@ -173,34 +174,34 @@ app.post("/api/user/login", (req, res, next) => {
           { expiresIn: "1h" }
         );
 
-        res.status(200).json({ token: token, expiresIn: 3600});
+        res.status(200).json({ token: token, expiresIn: 3600 });
       });
     }
   );
 });
 
-
 //inserir exercicio (a funcionar)
 
-app.post('/inserir', (req, res) => {
-  const exercises = req.body.exercises
+app.post("/inserir", (req, res) => {
+  const exercises = req.body.exercises;
   //const { text_code, user_id } = req.body;
 
-  if(!Array.isArray(exercises)) {
-    res.status(400).json({ error: "Lista de exercicios invalida"});
+  if (!Array.isArray(exercises)) {
+    res.status(400).json({ error: "Lista de exercicios invalida" });
     return;
   }
-  const values = exercises.map((exercicio) => [exercicio.text_code, exercicio.user_id]);
+  const values = exercises.map((exercicio) => [
+    exercicio.text_code,
+    exercicio.user_id,
+  ]);
 
-  const query = 'INSERT IGNORE INTO exercise (text_code, user_id) VALUES ?';
+  const query = "INSERT IGNORE INTO exercise (text_code, user_id) VALUES ?";
   //const values = [text_code, user_id];
-  
-
 
   mysqlConnection.query(query, [values], (error, results) => {
     if (error) {
-      console.error('Erro ao inserir o enunciado na base de dados:', error);
-      res.status(500).json({ error: 'Erro ao inserir o enunciado' });
+      console.error("Erro ao inserir o enunciado na base de dados:", error);
+      res.status(500).json({ error: "Erro ao inserir o enunciado" });
       return;
     }
 
@@ -209,75 +210,100 @@ app.post('/inserir', (req, res) => {
     if (affectedRows > 0) {
       res.json({ success: true });
     } else {
-      res.json({ success: false, message: 'O enunciado já existe na base de dados' });
+      res.json({
+        success: false,
+        message: "O enunciado já existe na base de dados",
+      });
     }
   });
 });
 
-app.get('/exercise', (req, res) => {
-  const query = 'SELECT * FROM exercise';
+app.get("/exercise", (req, res) => {
+  const query = "SELECT * FROM exercise";
 
   mysqlConnection.query(query, (error, results) => {
     if (error) {
-      console.error('Erro ao recuperar o enunciado da base de dados:', error);
-      res.status(500).json({ error: 'Erro ao recuperar o enunciado' });
+      console.error("Erro ao recuperar o enunciado da base de dados:", error);
+      res.status(500).json({ error: "Erro ao recuperar o enunciado" });
       return;
     }
 
-   // const exercises = results[0]; // Assumindo que há apenas um enunciado
+    // const exercises = results[0]; // Assumindo que há apenas um enunciado
 
     res.json(results);
   });
 });
 
 const exercicio1 = {
-  text_code: 'Construa um algoritmo que solicite ao utilizador o seu nome de se seguida imprima uma saudação com o seu nome.',
-  user_id: 1
+  text_code:
+    "Construa um algoritmo que solicite ao utilizador o seu nome de se seguida imprima uma saudação com o seu nome.",
+  user_id: 1,
 };
 
 const exercicio2 = {
-  text_code: "Construa um algoritmo que solicite ao utilizador o seu nome, a sua idade e de se seguida imprima uma saudação com o seu nome e a sua idade.",
-  user_id: 1
+  text_code:
+    "Construa um algoritmo que solicite ao utilizador o seu nome, a sua idade e de se seguida imprima uma saudação com o seu nome e a sua idade.",
+  user_id: 1,
 };
 
 const exercises = [exercicio1, exercicio2];
 
-fetch('http://localhost:3000/inserir', {
-  method: 'POST',
+fetch("http://localhost:3000/inserir", {
+  method: "POST",
   headers: {
-    'Content-Type': 'application/json'
+    "Content-Type": "application/json",
   },
-  body: JSON.stringify({ exercises })
+  body: JSON.stringify({ exercises }),
 })
-  .then(response => response.json())
-  .then(data => {
-    console.log('Exercícios inseridos com sucesso:', data);
+  .then((response) => response.json())
+  .then((data) => {
+    console.log("Exercícios inseridos com sucesso:", data);
   })
-  .catch(error => {
-    console.error('Erro ao inserir os exercícios:', error);
+  .catch((error) => {
+    console.error("Erro ao inserir os exercícios:", error);
   });
 
+// Ver exercicio selecionado na tab "Enunciado"
+app.get("/exercise/:id", limiter, (req, res) => {
+  const exerciseId = req.params.id;
+  const query = "SELECT * FROM exercise WHERE id = ?";
+  const values = [exerciseId];
 
-  
-  app.get('/exercise/:id', limiter, (req, res) => {
-    const exerciseId = req.params.id;
-    const query = 'SELECT * FROM exercise WHERE id = ?';
-    const values = [exerciseId];
-  
-    mysqlConnection.query(query, values, (error, results) => {
-      if (error) {
-        console.error('Erro ao buscar o exercício:', error);
-        res.status(500).json({ error: 'Erro ao buscar o exercício' });
-        return;
-      }
-  
-      if (results.length === 0) {
-        res.status(404).json({ error: 'Exercício não encontrado' });
-        return;
-      }
-  
-      const exercise = results[0];
-      res.json(exercise);
-    });
+  mysqlConnection.query(query, values, (error, results) => {
+    if (error) {
+      console.error("Erro ao buscar o exercício:", error);
+      res.status(500).json({ error: "Erro ao buscar o exercício" });
+      return;
+    }
+
+    if (results.length === 0) {
+      res.status(404).json({ error: "Exercício não encontrado" });
+      return;
+    }
+
+    const exercise = results[0];
+    res.json(exercise);
   });
-  
+});
+
+//guardar pseudocodigo na base de dados
+app.post("/save_pseudocode", (req, res) => {
+  const { pseudoCode, exerciseId } = req.body;
+
+  // Aqui você pode realizar as validações e processamentos necessários nos dados do pseudocódigo
+
+  // Em seguida, você pode salvar o pseudocódigo na base de dados
+  const query =
+    "INSERT INTO exercise_solution (pseudocode, exercise_id) VALUES (?, ?)";
+  const values = [pseudoCode, exerciseId];
+
+  mysqlConnection.query(query, values, (error, results) => {
+    if (error) {
+      console.error("Erro ao salvar o pseudocódigo:", error);
+      res.status(500).json({ error: "Erro ao salvar o pseudocódigo" });
+      return;
+    }
+
+    res.json({ success: true });
+  });
+});
