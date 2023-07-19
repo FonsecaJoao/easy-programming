@@ -36,6 +36,9 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
   private authStatusSub$!: Subscription;
   public exerciseId!: number;
 
+  isSaveSucess = false;
+  isSaveError = false;
+
   tabsIndex = TabsIndex;
   selectedExercise!: Exercise;
   userIsAuthenticated = false;
@@ -214,8 +217,16 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
     };
 
     this.exerciseSolutionService.saveSolution(payload).subscribe({
-      next: () => console.log("Pseudocódigo guardado com sucesso"),
-      error: (error) => console.error("Erro ao guardar:", error),
+      next: () => {
+        console.log("Pseudocódigo guardado com sucesso"),
+        this.isSaveSucess = true;
+        this.isSaveError = false;
+      },
+      error: (error) => {
+        console.error("Erro ao guardar:", error);
+        this.isSaveSucess = false;
+        this.isSaveError = true;
+      },
     });
   }
 

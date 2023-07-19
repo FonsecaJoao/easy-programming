@@ -47,5 +47,12 @@
         Guardar
       </button>
     </div>
+    <div *ngIf="isSaveSucess" class="success-message">
+      Pseudocódigo guardado com sucesso!
+    </div>
+    <div *ngIf="isSaveError" class="error-message">
+      Erro ao guardar o pseudocódigo.
+    </div>
+    
   </section>
 </main>
