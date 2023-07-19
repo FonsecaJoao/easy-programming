@@ -36,8 +36,8 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
   private authStatusSub$!: Subscription;
   public exerciseId!: number;
 
-  selectedExercise: Exercise | undefined;
-
+  tabsIndex = TabsIndex;
+  selectedExercise!: Exercise;
   userIsAuthenticated = false;
   hideTerminal = false;
   code = "for i in range(8):\n\t\tprint(i)";
@@ -184,43 +184,47 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
   }
 
   save(): void {
-    const repl = document.getElementsByClassName("cm-content");
-    const code = (repl[0] as ElementWithInnerText).innerText;
-    this.code = code.trim();
+    // Verificar onde o utilizar está
+    if (this.selectedTabIndex === TabsIndex.PSEUDOCODE) {
+      console.log("estou no pseudocodigo", this.pseudoCode);
+      // this.selectPseudoCodeOperations(toCurrentIndex);
+    } else if (this.selectedTabIndex === TabsIndex.CODE) {
+      console.log("estou no codigo");
+      // this.convertFromCodeToPseudoCode();
+      // this.selectCodeOperations(toCurrentIndex);
+    } else {
+      console.log("estou no flowchart");
+      // this.selectFlowchartOperations(toCurrentIndex);
+    }
+    // Escolher a conversão certa para o pseudocódigo
+    // !!!Cuidado!!! se tiver no flowchart, não tem conversão
+    // Salvar o pseudocódigo
+    // const repl = document.getElementsByClassName("cm-content");
+    // const code = (repl[0] as ElementWithInnerText).innerText;
+    // this.code = code.trim();
   }
 
   tabChanged(event: number): void {
-      this.checkTerminalVisibility(event);
-      this.selectOperationBasedOnTabChange(event);
-      if (event === 1) {
-        const repl = document.getElementsByClassName("cm-content");
-        const pseudoCode = (repl[0] as ElementWithInnerText).innerText.trim();
-        this.savePseudocode();
-      }
-    }
+    this.checkTerminalVisibility(event);
+    this.selectOperationBasedOnTabChange(event);
+  }
 
   savePseudocode(): void {
     const pseudoCode = this.pseudoCode;
     const exerciseId = this.exerciseId;
 
-    const data = {
-      pseudoCode: pseudoCode,
-      exerciseId: exerciseId,
-      // Outros dados a serem enviados, se necessário
+    const payload: SavePseudoCodePayload = {
+      pseudoCode,
+      exerciseId,
     };
 
-    this.http.post("http://localhost:3000/save_pseudocode", data).subscribe(
-      () => {
-        console.log("Pseudocódigo guardado com sucesso");
-      },
-      (error: any) => {
-        console.error("Erro ao guardar o pseudocódigo:", error);
-      }
-    );
+    this.exerciseSolutionService.saveSolution(payload).subscribe({
+      next: () => console.log("Pseudocódigo guardado com sucesso"),
+      error: (error) => console.error("Erro ao guardar:", error),
+    });
   }
 
   handleChange(event: string) {
     console.log(event);
   }
 }
-  

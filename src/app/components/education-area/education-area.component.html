@@ -31,8 +31,20 @@
   </section>
   <section class="menu-area">
     <div class="buttons">
-      <button class="execute" (click)="execute()">Executar</button>
-      <button class="save" (click)="savePseudocode()">Guardar</button>
+      <button
+        *ngIf="selectedTabIndex === tabsIndex.CODE"
+        class="execute"
+        (click)="execute()"
+      >
+        Executar
+      </button>
+      <button
+        *ngIf="selectedTabIndex !== tabsIndex.EXERCISE"
+        class="save"
+        (click)="save()"
+      >
+        Guardar
+      </button>
     </div>
   </section>
 </main>
