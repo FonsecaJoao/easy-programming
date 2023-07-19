@@ -11,8 +11,8 @@ import { ExerciseService } from "src/app/services/exercise.service";
 })
 export class ExerciseListComponent implements OnInit {
   dataSource: Exercise[] = [];
-  displayedColumns: string[] = ["id", "pseudocode"];
-  
+  displayedColumns: string[] = ["id", "text_code"];
+
   constructor(
     private readonly router: Router,
     private readonly exerciseService: ExerciseService
