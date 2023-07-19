@@ -1,27 +1,28 @@
 <main class="page" *ngIf="userIsAuthenticated">
   <section class="programming-area">
     <mat-tab-group
+      preserveContent
       #tabGroup
       [(selectedIndex)]="selectedTabIndex"
       (selectedIndexChange)="tabChanged($event)"
     >
-      <mat-tab [preserveContent]="true" label="Enunciado">
+      <mat-tab label="Enunciado">
         <div class="exercise-wrapper" *ngIf="selectedExercise">
           <h2>Exercício {{ selectedExercise.id }}</h2>
           <p>{{ selectedExercise.text_code }}</p>
         </div>
       </mat-tab>
-      <mat-tab [preserveContent]="true" label="Pseudocódigo">
+      <mat-tab label="Pseudocódigo">
         <ngx-codemirror
           [(ngModel)]="pseudoCode"
           [options]="pseudoCodeOptions"
           (ngModelChange)="handleChange($event)"
         ></ngx-codemirror>
       </mat-tab>
-      <mat-tab [preserveContent]="true" label="Código">
+      <mat-tab label="Código">
         <py-repl class="repl-area"> {{ code }} </py-repl>
       </mat-tab>
-      <mat-tab [preserveContent]="true" label="Fluxograma">
+      <mat-tab label="Fluxograma">
         <ng-template matTabContent>
           <app-flowchart></app-flowchart>
         </ng-template>
