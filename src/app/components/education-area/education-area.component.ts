@@ -10,7 +10,8 @@ import { ExerciseService } from "src/app/services/exercise.service";
 import { Exercise } from "src/app/entities/interfaces/exercise.interface";
 
 import { HttpClient } from "@angular/common/http";
-
+import { ExerciseSolutionService } from "src/app/services/exercise-solution.service";
+import { SavePseudoCodePayload } from "src/app/entities/interfaces/save-pseudocode-payload.interface";
 
 declare var pyscript: any;
 
@@ -28,7 +29,6 @@ enum TabsIndex {
   selector: "app-education-area",
   templateUrl: "./education-area.component.html",
   styleUrls: ["./education-area.component.css"],
-  // encapsulation: ViewEncapsulation.None,
 })
 export class EducationAreaComponent implements OnInit, OnDestroy {
   private _selectedTabIndex = 1;
@@ -36,8 +36,8 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
   private authStatusSub$!: Subscription;
   public exerciseId!: number;
 
-  selectedExercise: Exercise | undefined;
-
+  tabsIndex = TabsIndex;
+  selectedExercise!: Exercise;
   userIsAuthenticated = false;
   hideTerminal = false;
   code = "for i in range(8):\n\t\tprint(i)";
@@ -61,8 +61,8 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
   constructor(
     private readonly authService: AuthService,
     private readonly activatedRoute: ActivatedRoute,
-    private exerciseService: ExerciseService,
-    private http: HttpClient
+    private readonly exerciseService: ExerciseService,
+    private readonly exerciseSolutionService: ExerciseSolutionService
   ) {}
 
   ngOnInit() {
@@ -72,45 +72,60 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
       .subscribe((isAuthenticated) => {
         this.userIsAuthenticated = isAuthenticated;
       });
-    this.exerciseId = Number(
-      this.activatedRoute.snapshot.paramMap.get("exerciseId")
-    );
-    if (this.exerciseId) {
-      this.exerciseService.getExerciseById(this.exerciseId).subscribe(
-        (exercise: Exercise) => {
-          console.log(exercise);
-          this.selectedExercise = exercise;
-        },
-        (error) => {
-          console.error("Erro ao buscar o exercício:", error);
-        }
-      );
-    }
+    this.exerciseId = this.getExerciseIdFromRoute();
+    this.getExercise();
+    this.checkTerminalVisibility(this.selectedTabIndex);
   }
 
   ngOnDestroy() {
     this.authStatusSub$.unsubscribe();
   }
 
+  private getExerciseIdFromRoute(): number {
+    return Number(this.activatedRoute.snapshot.paramMap.get("exerciseId"));
+  }
+
+  private getExercise() {
+    if (!this.exerciseId) return;
+
+    this.exerciseService.getExerciseById(this.exerciseId).subscribe({
+      next: (exercise: Exercise) => (this.selectedExercise = exercise),
+      error: (error) => console.error("Erro ao buscar o exercício:", error),
+    });
+  }
+
   private checkTerminalVisibility(index: number): void {
-    const hideTerminalConditions = [TabsIndex.FLOWCHART, TabsIndex.EXERCISE];
+    const hideTerminalConditions = [
+      TabsIndex.FLOWCHART,
+      TabsIndex.EXERCISE,
+      TabsIndex.PSEUDOCODE,
+    ];
     this.hideTerminal = hideTerminalConditions.includes(index) ? true : false;
   }
 
   private selectOperationBasedOnTabChange(toCurrentIndex: number): void {
-    if (this._previousSelectedTabIndex === TabsIndex.PSEUDOCODE) {
-      this.selectPseudoCodeOperations(toCurrentIndex);
-    } else if (this._previousSelectedTabIndex === TabsIndex.CODE) {
-      this.selectCodeOperations(toCurrentIndex);
-    } else {
-      this.selectFlowchartOperations(toCurrentIndex);
+    switch (this._previousSelectedTabIndex) {
+      case TabsIndex.CODE:
+        this.selectCodeOperations(toCurrentIndex);
+        break;
+      case TabsIndex.PSEUDOCODE:
+        this.selectPseudoCodeOperations(toCurrentIndex);
+        break;
+      case TabsIndex.FLOWCHART:
+        this.selectFlowchartOperations(toCurrentIndex);
+        break;
+      default:
+        // Do nothing because the tab is the exercise one
+        break;
     }
   }
 
   // Code Operations
   private selectCodeOperations(toCurrentIndex: number) {
     if (toCurrentIndex === TabsIndex.PSEUDOCODE) {
-      this.convertFromCodeToPseudoCode();
+      const code: string[] = this.retrieveCodeFromHtml();
+      this.convertFromCodeToPseudoCode(code);
+      this.storeCodeInMemory(code);
     }
     if (toCurrentIndex === TabsIndex.FLOWCHART) {
       this.convertFromCodeToFlowchart();
@@ -131,8 +146,11 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
     return code;
   }
 
-  private convertFromCodeToPseudoCode(): void {
-    const code: string[] = this.retrieveCodeFromHtml();
+  private storeCodeInMemory(code: string[]): void {
+    this.code = code.join("\n");
+  }
+
+  private convertFromCodeToPseudoCode(code: string[]): void {
     this.pseudoCode = pythonToPseudocode(code);
   }
 
@@ -142,7 +160,9 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
 
   // PseudoCode Operations
   private selectPseudoCodeOperations(toCurrentIndex: number): void {
-    if (toCurrentIndex === TabsIndex.CODE) this.convertFromPseudoCodeToCode();
+    if (toCurrentIndex === TabsIndex.CODE) {
+      this.convertFromPseudoCodeToCode();
+    }
     if (toCurrentIndex === TabsIndex.FLOWCHART) {
       this.convertFromPseudoCodeToFlowchart();
     }
@@ -153,6 +173,7 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
   }
 
   private convertFromPseudoCodeToCode() {
+    if (!this.pseudoCode) return;
     const pseudoCode: string[] = this.pseudoCode.split("\n");
     const code = pseudoCodeToPython(pseudoCode);
     const repl = document.getElementsByClassName("cm-content");
@@ -177,6 +198,27 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
     throw new Error("Method not implemented.");
   }
 
+  // Menu Operations
+  private checkCodeExists(): boolean {
+    if (!this.code) return false;
+    return true;
+  }
+
+  private savePseudocode(): void {
+    const pseudoCode = this.pseudoCode;
+    const exerciseId = this.exerciseId;
+
+    const payload: SavePseudoCodePayload = {
+      pseudoCode,
+      exerciseId,
+    };
+
+    this.exerciseSolutionService.saveSolution(payload).subscribe({
+      next: () => console.log("Pseudocódigo guardado com sucesso"),
+      error: (error) => console.error("Erro ao guardar:", error),
+    });
+  }
+
   execute(): void {
     const repl = document.getElementsByClassName("cm-content");
     const code = (repl[0] as ElementWithInnerText).innerText;
@@ -184,43 +226,27 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
   }
 
   save(): void {
-    const repl = document.getElementsByClassName("cm-content");
-    const code = (repl[0] as ElementWithInnerText).innerText;
-    this.code = code.trim();
+    if (this.selectedTabIndex === TabsIndex.PSEUDOCODE) {
+      if (!this.pseudoCode && this.checkCodeExists()) {
+        const code: string[] = this.code.split("\n");
+        this.convertFromCodeToPseudoCode(code);
+      }
+      this.savePseudocode();
+    } else if (this.selectedTabIndex === TabsIndex.CODE) {
+      const code: string[] = this.retrieveCodeFromHtml();
+      this.convertFromCodeToPseudoCode(code);
+      this.savePseudocode();
+    } else {
+      this.savePseudocode();
+    }
   }
 
   tabChanged(event: number): void {
-      this.checkTerminalVisibility(event);
-      this.selectOperationBasedOnTabChange(event);
-      if (event === 1) {
-        const repl = document.getElementsByClassName("cm-content");
-        const pseudoCode = (repl[0] as ElementWithInnerText).innerText.trim();
-        this.savePseudocode();
-      }
-    }
-
-  savePseudocode(): void {
-    const pseudoCode = this.pseudoCode;
-    const exerciseId = this.exerciseId;
-
-    const data = {
-      pseudoCode: pseudoCode,
-      exerciseId: exerciseId,
-      // Outros dados a serem enviados, se necessário
-    };
-
-    this.http.post("http://localhost:3000/save_pseudocode", data).subscribe(
-      () => {
-        console.log("Pseudocódigo guardado com sucesso");
-      },
-      (error: any) => {
-        console.error("Erro ao guardar o pseudocódigo:", error);
-      }
-    );
+    this.checkTerminalVisibility(event);
+    this.selectOperationBasedOnTabChange(event);
   }
 
   handleChange(event: string) {
     console.log(event);
   }
 }
-  

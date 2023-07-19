@@ -1,28 +1,28 @@
 <main class="page" *ngIf="userIsAuthenticated">
   <section class="programming-area">
     <mat-tab-group
+      preserveContent
       #tabGroup
       [(selectedIndex)]="selectedTabIndex"
-      
       (selectedIndexChange)="tabChanged($event)"
     >
-      <mat-tab [preserveContent]="true" label="Enunciado">
-        <div *ngIf="selectedExercise">
-          <h2>{{ selectedExercise.id }}</h2>
+      <mat-tab label="Enunciado">
+        <div class="exercise-wrapper" *ngIf="selectedExercise">
+          <h2>Exercício {{ selectedExercise.id }}</h2>
           <p>{{ selectedExercise.text_code }}</p>
         </div>
       </mat-tab>
-      <mat-tab [preserveContent]="true" label="Pseudocódigo">
+      <mat-tab label="Pseudocódigo">
         <ngx-codemirror
           [(ngModel)]="pseudoCode"
           [options]="pseudoCodeOptions"
           (ngModelChange)="handleChange($event)"
         ></ngx-codemirror>
       </mat-tab>
-      <mat-tab [preserveContent]="true" label="Código">
+      <mat-tab label="Código">
         <py-repl class="repl-area"> {{ code }} </py-repl>
       </mat-tab>
-      <mat-tab [preserveContent]="true" label="Fluxograma">
+      <mat-tab label="Fluxograma">
         <ng-template matTabContent>
           <app-flowchart></app-flowchart>
         </ng-template>
@@ -32,8 +32,20 @@
   </section>
   <section class="menu-area">
     <div class="buttons">
-      <button class="execute" (click)="execute()">Executar</button>
-      <button class="save" (click)="savePseudocode()">Guardar</button>
+      <button
+        *ngIf="selectedTabIndex === tabsIndex.CODE"
+        class="execute"
+        (click)="execute()"
+      >
+        Executar
+      </button>
+      <button
+        *ngIf="selectedTabIndex !== tabsIndex.EXERCISE"
+        class="save"
+        (click)="save()"
+      >
+        Guardar
+      </button>
     </div>
   </section>
 </main>

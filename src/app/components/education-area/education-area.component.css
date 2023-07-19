@@ -23,6 +23,10 @@
   border-top: 2px solid grey;
 }
 
+.page > .programming-area .exercise-wrapper {
+  padding: 0 40px;
+}
+
 .page > .menu-area {
   display: flex;
   order: 2;
