@@ -104,19 +104,28 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
   }
 
   private selectOperationBasedOnTabChange(toCurrentIndex: number): void {
-    if (this._previousSelectedTabIndex === TabsIndex.PSEUDOCODE) {
-      this.selectPseudoCodeOperations(toCurrentIndex);
-    } else if (this._previousSelectedTabIndex === TabsIndex.CODE) {
-      this.selectCodeOperations(toCurrentIndex);
-    } else {
-      this.selectFlowchartOperations(toCurrentIndex);
+    switch (this._previousSelectedTabIndex) {
+      case TabsIndex.CODE:
+        this.selectCodeOperations(toCurrentIndex);
+        break;
+      case TabsIndex.PSEUDOCODE:
+        this.selectPseudoCodeOperations(toCurrentIndex);
+        break;
+      case TabsIndex.FLOWCHART:
+        this.selectFlowchartOperations(toCurrentIndex);
+        break;
+      default:
+        // Do nothing because the tab is the exercise one
+        break;
     }
   }
 
   // Code Operations
   private selectCodeOperations(toCurrentIndex: number) {
     if (toCurrentIndex === TabsIndex.PSEUDOCODE) {
-      this.convertFromCodeToPseudoCode();
+      const code: string[] = this.retrieveCodeFromHtml();
+      this.convertFromCodeToPseudoCode(code);
+      this.storeCodeInMemory(code);
     }
     if (toCurrentIndex === TabsIndex.FLOWCHART) {
       this.convertFromCodeToFlowchart();
@@ -137,8 +146,11 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
     return code;
   }
 
-  private convertFromCodeToPseudoCode(): void {
-    const code: string[] = this.retrieveCodeFromHtml();
+  private storeCodeInMemory(code: string[]): void {
+    this.code = code.join("\n");
+  }
+
+  private convertFromCodeToPseudoCode(code: string[]): void {
     this.pseudoCode = pythonToPseudocode(code);
   }
 
@@ -148,7 +160,9 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
 
   // PseudoCode Operations
   private selectPseudoCodeOperations(toCurrentIndex: number): void {
-    if (toCurrentIndex === TabsIndex.CODE) this.convertFromPseudoCodeToCode();
+    if (toCurrentIndex === TabsIndex.CODE) {
+      this.convertFromPseudoCodeToCode();
+    }
     if (toCurrentIndex === TabsIndex.FLOWCHART) {
       this.convertFromPseudoCodeToFlowchart();
     }
@@ -184,39 +198,13 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
     throw new Error("Method not implemented.");
   }
 
-  execute(): void {
-    const repl = document.getElementsByClassName("cm-content");
-    const code = (repl[0] as ElementWithInnerText).innerText;
-    pyscript.interpreter.run(code.trim());
+  // Menu Operations
+  private checkCodeExists(): boolean {
+    if (!this.code) return false;
+    return true;
   }
 
-  save(): void {
-    // Verificar onde o utilizar está
-    if (this.selectedTabIndex === TabsIndex.PSEUDOCODE) {
-      console.log("estou no pseudocodigo", this.pseudoCode);
-      // this.selectPseudoCodeOperations(toCurrentIndex);
-    } else if (this.selectedTabIndex === TabsIndex.CODE) {
-      console.log("estou no codigo");
-      // this.convertFromCodeToPseudoCode();
-      // this.selectCodeOperations(toCurrentIndex);
-    } else {
-      console.log("estou no flowchart");
-      // this.selectFlowchartOperations(toCurrentIndex);
-    }
-    // Escolher a conversão certa para o pseudocódigo
-    // !!!Cuidado!!! se tiver no flowchart, não tem conversão
-    // Salvar o pseudocódigo
-    // const repl = document.getElementsByClassName("cm-content");
-    // const code = (repl[0] as ElementWithInnerText).innerText;
-    // this.code = code.trim();
-  }
-
-  tabChanged(event: number): void {
-    this.checkTerminalVisibility(event);
-    this.selectOperationBasedOnTabChange(event);
-  }
-
-  savePseudocode(): void {
+  private savePseudocode(): void {
     const pseudoCode = this.pseudoCode;
     const exerciseId = this.exerciseId;
 
@@ -229,6 +217,33 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
       next: () => console.log("Pseudocódigo guardado com sucesso"),
       error: (error) => console.error("Erro ao guardar:", error),
     });
+  }
+
+  execute(): void {
+    const repl = document.getElementsByClassName("cm-content");
+    const code = (repl[0] as ElementWithInnerText).innerText;
+    pyscript.interpreter.run(code.trim());
+  }
+
+  save(): void {
+    if (this.selectedTabIndex === TabsIndex.PSEUDOCODE) {
+      if (!this.pseudoCode && this.checkCodeExists()) {
+        const code: string[] = this.code.split("\n");
+        this.convertFromCodeToPseudoCode(code);
+      }
+      this.savePseudocode();
+    } else if (this.selectedTabIndex === TabsIndex.CODE) {
+      const code: string[] = this.retrieveCodeFromHtml();
+      this.convertFromCodeToPseudoCode(code);
+      this.savePseudocode();
+    } else {
+      this.savePseudocode();
+    }
+  }
+
+  tabChanged(event: number): void {
+    this.checkTerminalVisibility(event);
+    this.selectOperationBasedOnTabChange(event);
   }
 
   handleChange(event: string) {
