@@ -3,12 +3,11 @@
     <mat-tab-group
       #tabGroup
       [(selectedIndex)]="selectedTabIndex"
-      
       (selectedIndexChange)="tabChanged($event)"
     >
       <mat-tab [preserveContent]="true" label="Enunciado">
-        <div *ngIf="selectedExercise">
-          <h2>{{ selectedExercise.id }}</h2>
+        <div class="exercise-wrapper" *ngIf="selectedExercise">
+          <h2>Exercício {{ selectedExercise.id }}</h2>
           <p>{{ selectedExercise.text_code }}</p>
         </div>
       </mat-tab>
