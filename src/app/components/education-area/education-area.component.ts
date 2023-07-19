@@ -29,7 +29,6 @@ enum TabsIndex {
   selector: "app-education-area",
   templateUrl: "./education-area.component.html",
   styleUrls: ["./education-area.component.css"],
-  // encapsulation: ViewEncapsulation.None,
 })
 export class EducationAreaComponent implements OnInit, OnDestroy {
   private _selectedTabIndex = 1;
