@@ -22,6 +22,8 @@ const limiter = rateLimit({
   max: 10, // Allow a maximum of 10 requests per minute
 });
 
+
+
 const mysqlConnection = mysql.createConnection({
   host: "localhost",
   user: "root",
@@ -287,22 +289,69 @@ app.get("/exercise/:id", limiter, (req, res) => {
 });
 
 //guardar pseudocodigo na base de dados
-app.post("/save_pseudocode", limiter,(req, res) => {
+app.post("/save_pseudocode", limiter, (req, res) => {
   const { pseudoCode, exerciseId } = req.body;
 
-  // validações e processamentos necessários nos dados do pseudocódigo
+  // Obter o token JWT do cabeçalho de autorização
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(" ")[1]; // Extrair o token sem o prefixo "Bearer"
 
-  const query =
-    "INSERT INTO exercise_solution (pseudocode, exercise_id) VALUES (?, ?)";
-  const values = [pseudoCode, exerciseId];
+  if (!token) {
+    return res.status(401).json({ error: "Token de autenticação não fornecido" });
+  }
 
-  mysqlConnection.query(query, values, (error, results) => {
-    if (error) {
-      console.error("Erro ao salvar o pseudocódigo:", error);
-      res.status(500).json({ error: "Erro ao salvar o pseudocódigo" });
-      return;
-    }
+  try {
+    // Verificar e decodificar o token JWT
+    const decodedToken = jwt.verify(token, "secret_this_should_be_longer");
 
-    res.json({ success: true });
-  });
+    // Extrair o email do utilizador do token decodificado
+    const userEmail = decodedToken.email;
+
+    // Consultar o banco de dados para obter o ID do utilizador com base no email
+    const userQuery = "SELECT id FROM user WHERE email = ?";
+    const userValues = [userEmail];
+
+    mysqlConnection.query(userQuery, userValues, (error, userResults) => {
+      if (error) {
+        console.error("Erro ao buscar o ID do utilizador:", error);
+        res.status(500).json({ error: "Erro ao buscar o ID do utilizador" });
+        return;
+      }
+
+      if (userResults.length === 0) {
+        res.status(404).json({ error: "utilizador não encontrado" });
+        return;
+      }
+
+      const userId = userResults[0].id;
+
+      const query = "INSERT INTO exercise_solution (pseudocode, exercise_id) VALUES (?, ?)";
+      const values = [pseudoCode, exerciseId];
+
+      mysqlConnection.query(query, values, (error, exerciseSolutionResults) => {
+        if (error) {
+          console.error("Erro ao salvar o pseudocódigo:", error);
+          res.status(500).json({ error: "Erro ao salvar o pseudocódigo" });
+          return;
+        }
+
+        const exerciseSolutionId = exerciseSolutionResults.insertId; // Obtém o ID gerado para a inserção na tabela exercise_solution
+
+        const userSolutionQuery = "INSERT INTO user_solution ( user_id, solution_id) VALUES (?, ?)";
+        const userSolutionValues = [userId, exerciseSolutionId];
+
+        mysqlConnection.query(userSolutionQuery, userSolutionValues, (error, userSolutionResults) => {
+          if (error) {
+            console.error("Erro ao salvar o pseudocódigo na tabela user_solution:", error);
+            res.status(500).json({ error: "Erro ao salvar o pseudocódigo" });
+            return;
+          }
+
+          res.json({ success: true });
+        });
+      });
+    });
+  } catch (error) {
+    return res.status(401).json({ error: "Token de autenticação inválido" });
+  }
 });
