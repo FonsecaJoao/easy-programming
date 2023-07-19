@@ -10,7 +10,8 @@ import { ExerciseService } from "src/app/services/exercise.service";
 import { Exercise } from "src/app/entities/interfaces/exercise.interface";
 
 import { HttpClient } from "@angular/common/http";
-
+import { ExerciseSolutionService } from "src/app/services/exercise-solution.service";
+import { SavePseudoCodePayload } from "src/app/entities/interfaces/save-pseudocode-payload.interface";
 
 declare var pyscript: any;
 
@@ -61,8 +62,8 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
   constructor(
     private readonly authService: AuthService,
     private readonly activatedRoute: ActivatedRoute,
-    private exerciseService: ExerciseService,
-    private http: HttpClient
+    private readonly exerciseService: ExerciseService,
+    private readonly exerciseSolutionService: ExerciseSolutionService
   ) {}
 
   ngOnInit() {
@@ -72,28 +73,34 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
       .subscribe((isAuthenticated) => {
         this.userIsAuthenticated = isAuthenticated;
       });
-    this.exerciseId = Number(
-      this.activatedRoute.snapshot.paramMap.get("exerciseId")
-    );
-    if (this.exerciseId) {
-      this.exerciseService.getExerciseById(this.exerciseId).subscribe(
-        (exercise: Exercise) => {
-          console.log(exercise);
-          this.selectedExercise = exercise;
-        },
-        (error) => {
-          console.error("Erro ao buscar o exercício:", error);
-        }
-      );
-    }
+    this.exerciseId = this.getExerciseIdFromRoute();
+    this.getExercise();
+    this.checkTerminalVisibility(this.selectedTabIndex);
   }
 
   ngOnDestroy() {
     this.authStatusSub$.unsubscribe();
   }
 
+  private getExerciseIdFromRoute(): number {
+    return Number(this.activatedRoute.snapshot.paramMap.get("exerciseId"));
+  }
+
+  private getExercise() {
+    if (!this.exerciseId) return;
+
+    this.exerciseService.getExerciseById(this.exerciseId).subscribe({
+      next: (exercise: Exercise) => (this.selectedExercise = exercise),
+      error: (error) => console.error("Erro ao buscar o exercício:", error),
+    });
+  }
+
   private checkTerminalVisibility(index: number): void {
-    const hideTerminalConditions = [TabsIndex.FLOWCHART, TabsIndex.EXERCISE];
+    const hideTerminalConditions = [
+      TabsIndex.FLOWCHART,
+      TabsIndex.EXERCISE,
+      TabsIndex.PSEUDOCODE,
+    ];
     this.hideTerminal = hideTerminalConditions.includes(index) ? true : false;
   }
 
@@ -153,6 +160,7 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
   }
 
   private convertFromPseudoCodeToCode() {
+    if (!this.pseudoCode) return;
     const pseudoCode: string[] = this.pseudoCode.split("\n");
     const code = pseudoCodeToPython(pseudoCode);
     const repl = document.getElementsByClassName("cm-content");
