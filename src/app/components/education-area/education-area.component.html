@@ -31,6 +31,16 @@
     <py-terminal *ngIf="!hideTerminal" class="terminal"></py-terminal>
   </section>
   <section class="menu-area">
+    <div>
+      <h2>Lista de Soluções</h2>
+      <ul>
+        <li *ngFor="let solution of exerciseSolutions">
+          <div>{{ solution.pseudocode }}</div>
+          <div>{{ solution.otherProperty }}</div>
+          <!-- Exiba outras propriedades da solução conforme necessário -->
+        </li>
+      </ul>
+    </div>
     <div class="buttons">
       <button
         *ngIf="selectedTabIndex === tabsIndex.CODE"

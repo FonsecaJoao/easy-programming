@@ -22,8 +22,6 @@ const limiter = rateLimit({
   max: 10, // Allow a maximum of 10 requests per minute
 });
 
-
-
 const mysqlConnection = mysql.createConnection({
   host: "localhost",
   user: "root",
@@ -265,6 +263,49 @@ fetch("http://localhost:3000/inserir", {
     console.error("Erro ao inserir os exercícios:", error);
   });
 
+//Ver exercicios associados
+app.get("/exercise/:exerciseId/:userId", limiter, (req, res) => {
+  const exerciseId = req.params.exerciseId;
+  //const userId = req.params.userId;
+
+  // Obter o token JWT do cabeçalho de autorização
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(" ")[1]; // Extrair o token sem o prefixo "Bearer"
+
+  if (!token) {
+    return res
+      .status(401)
+      .json({ error: "Token de autenticação não fornecido" });
+  }
+
+  try {
+    // Verificar e decodificar o token JWT
+    const decodedToken = jwt.verify(token, "secret_this_should_be_longer");
+
+    const userId = decodedToken.userId;
+
+    const query = `
+   select exercise_solution.pseudocode
+  FROM exercise_solution
+  WHERE user_id = ? AND exercise_id = ?;
+    `;
+
+    const values = [userId, exerciseId];
+
+    mysqlConnection.query(query, values, (error, results) => {
+      if (error) {
+        console.error("Erro ao buscar as soluções:", error);
+        res.status(500).json({ error: "Erro ao buscar as soluções" });
+        return;
+      }
+      console.log("Resultado da consulta:", results);
+      res.json(results);
+    });
+  } catch (error) {
+    return res.status(401).json({ error: "Token de autenticação inválido" });
+  }
+});
+
 // Ver exercicio selecionado na tab "Enunciado"
 app.get("/exercise/:id", limiter, (req, res) => {
   const exerciseId = req.params.id;
@@ -297,7 +338,9 @@ app.post("/save_pseudocode", limiter, (req, res) => {
   const token = authHeader && authHeader.split(" ")[1]; // Extrair o token sem o prefixo "Bearer"
 
   if (!token) {
-    return res.status(401).json({ error: "Token de autenticação não fornecido" });
+    return res
+      .status(401)
+      .json({ error: "Token de autenticação não fornecido" });
   }
 
   try {
@@ -325,8 +368,9 @@ app.post("/save_pseudocode", limiter, (req, res) => {
 
       const userId = userResults[0].id;
 
-      const query = "INSERT INTO exercise_solution (pseudocode, exercise_id) VALUES (?, ?)";
-      const values = [pseudoCode, exerciseId];
+      const query =
+        "INSERT INTO exercise_solution (pseudocode, exercise_id, user_id) VALUES (?, ?, ?)";
+      const values = [pseudoCode, exerciseId, userId];
 
       mysqlConnection.query(query, values, (error, exerciseSolutionResults) => {
         if (error) {
@@ -337,18 +381,26 @@ app.post("/save_pseudocode", limiter, (req, res) => {
 
         const exerciseSolutionId = exerciseSolutionResults.insertId; // Obtém o ID gerado para a inserção na tabela exercise_solution
 
-        const userSolutionQuery = "INSERT INTO user_solution ( user_id, solution_id) VALUES (?, ?)";
+        const userSolutionQuery =
+          "INSERT INTO user_solution ( user_id, solution_id) VALUES (?, ?)";
         const userSolutionValues = [userId, exerciseSolutionId];
 
-        mysqlConnection.query(userSolutionQuery, userSolutionValues, (error, userSolutionResults) => {
-          if (error) {
-            console.error("Erro ao salvar o pseudocódigo na tabela user_solution:", error);
-            res.status(500).json({ error: "Erro ao salvar o pseudocódigo" });
-            return;
-          }
+        mysqlConnection.query(
+          userSolutionQuery,
+          userSolutionValues,
+          (error, userSolutionResults) => {
+            if (error) {
+              console.error(
+                "Erro ao salvar o pseudocódigo na tabela user_solution:",
+                error
+              );
+              res.status(500).json({ error: "Erro ao salvar o pseudocódigo" });
+              return;
+            }
 
-          res.json({ success: true });
-        });
+            res.json({ success: true });
+          }
+        );
       });
     });
   } catch (error) {
