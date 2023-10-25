@@ -10,6 +10,7 @@ import { ExerciseService } from "src/app/services/exercise.service";
 import { Exercise } from "src/app/entities/interfaces/exercise.interface";
 
 import { HttpClient } from "@angular/common/http";
+
 import { ExerciseSolutionService } from "src/app/services/exercise-solution.service";
 import { SavePseudoCodePayload } from "src/app/entities/interfaces/save-pseudocode-payload.interface";
 
@@ -35,6 +36,12 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
   private _previousSelectedTabIndex = 1;
   private authStatusSub$!: Subscription;
   public exerciseId!: number;
+
+  isSaveSucess = false;
+  isSaveError = false;
+
+  userId!: number | null;
+  exerciseSolutions!: any[];
 
   tabsIndex = TabsIndex;
   selectedExercise!: Exercise;
@@ -62,7 +69,8 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
     private readonly authService: AuthService,
     private readonly activatedRoute: ActivatedRoute,
     private readonly exerciseService: ExerciseService,
-    private readonly exerciseSolutionService: ExerciseSolutionService
+    private readonly exerciseSolutionService: ExerciseSolutionService,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
@@ -75,6 +83,25 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
     this.exerciseId = this.getExerciseIdFromRoute();
     this.getExercise();
     this.checkTerminalVisibility(this.selectedTabIndex);
+    //
+    this.userId = this.authService.getUserId();
+    this.route.params.subscribe((params) => {
+      console.log("params: ", params)
+      this.exerciseId = +params["exerciseId"];
+      this.userId = +params["userId"];
+      this.exerciseSolutionService
+        .getExerciseSolutions(this.exerciseId, this.userId)
+        .subscribe(
+          (data) => {
+            this.exerciseSolutions = data;
+            console.log('exerciseId:', this.exerciseId);
+            console.log('userId:', this.userId);
+          },
+          (error) => {
+            console.error("Erro ao obter as soluções:", error);
+          }
+        );
+    });
   }
 
   ngOnDestroy() {
@@ -214,8 +241,16 @@ export class EducationAreaComponent implements OnInit, OnDestroy {
     };
 
     this.exerciseSolutionService.saveSolution(payload).subscribe({
-      next: () => console.log("Pseudocódigo guardado com sucesso"),
-      error: (error) => console.error("Erro ao guardar:", error),
+      next: () => {
+        console.log("Pseudocódigo guardado com sucesso"),
+          (this.isSaveSucess = true);
+        this.isSaveError = false;
+      },
+      error: (error) => {
+        console.error("Erro ao guardar:", error);
+        this.isSaveSucess = false;
+        this.isSaveError = true;
+      },
     });
   }
 
