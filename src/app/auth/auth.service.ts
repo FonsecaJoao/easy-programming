@@ -8,6 +8,8 @@ import { Router } from "@angular/router";
 export class AuthService {
   private isAuthenticated = false;
 
+  private userId: number | null = null;
+
   private token: string | null = null;
   private tokenTimer!: NodeJS.Timer;
   private authStatusListener = new Subject<boolean>();
@@ -26,6 +28,13 @@ export class AuthService {
     return this.authStatusListener.asObservable();
   }
 
+  setUserId(userId: number) {
+    this.userId = userId;
+  }
+  getUserId(): number | null {
+    return this.userId;
+  }
+
   createUsers(nome: string, email: string, password: string) {
     const authData: AuthData = { nome: nome, email: email, password: password };
     this.http
@@ -39,7 +48,7 @@ export class AuthService {
   login(email: string, password: string) {
     const authData: AuthDataL = { email: email, password: password };
     this.http
-      .post<{ token: string; expiresIn: number }>(
+      .post<{ token: string; expiresIn: number; userId: number }>(
         "http://localhost:3000/api/user/login",
         authData
       )
@@ -57,6 +66,7 @@ export class AuthService {
               now.getTime() + expiresInDuration * 1000
             );
             this.saveAuthData(token, expirationDate);
+            this.setUserId(response.userId);
             this.router.navigate(["/exercise"]);
           }
         },

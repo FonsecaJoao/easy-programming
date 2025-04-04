@@ -107,3 +107,12 @@
   padding: 10px 5px;
   height: 61vh;
 }
+
+.success-message {
+  color: green;
+}
+
+.error-message {
+  color: red;
+}
+
